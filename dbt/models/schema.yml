@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: dq_unmapped
+    description: Codes no mapping table recognizes. Must be empty before reports are trusted.
+    tests:
+      - empty
+  - name: mart_location_monthly
+    description: One row per office per month; base table for the practice scorecard.
+    columns:
+      - name: location_key
+        tests: [not_null]
+      - name: month
+        tests: [not_null]
+      - name: collections
+        tests: [not_null]
+  - name: mart_operations_monthly
+    description: Operating expenses by category per office and month, with collections for % of collections.
+    columns:
+      - name: category
+        tests: [not_null]
+  - name: mart_reconciliation
+    description: Sage Intacct vs PMS, UKG, inventory and marketing. Variance should stay within 1%.

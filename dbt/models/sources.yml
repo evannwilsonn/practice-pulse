@@ -1,0 +1,35 @@
+version: 2
+
+# Raw tables: each system's data exactly as delivered, all text columns.
+# Written by load_raw.py (sample data / custom PMS connectors) today.
+# When Fivetran is switched on, point sage_intacct, ukg and marketing at the
+# schemas Fivetran creates and adjust column names in their staging models.
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: pms_open_dental__procedures
+      - name: pms_open_dental__providers
+      - name: pms_open_dental__payments
+      - name: pms_dentrix_ascend__procedures
+      - name: pms_dentrix_ascend__providers
+      - name: pms_dentrix_ascend__payments
+      - name: pms_sensei__procedures
+      - name: pms_sensei__providers
+      - name: pms_sensei__payments
+      - name: pms_dolphin__procedures
+      - name: pms_dolphin__payments
+      - name: pms_dolphin__providers
+      - name: pms_tdo__procedures
+      - name: pms_tdo__payments
+      - name: pms_dentrix__procedures
+      - name: pms_dentrix__providers
+      - name: pms_dentrix__payments
+      - name: pms_dox__procedures
+      - name: pms_dox__providers
+      - name: pms_dox__payments
+      - name: sage_intacct__gl_detail
+      - name: ukg__timecards
+      - name: inventory__usage
+      - name: marketing__channel_performance
+      - name: windsor__facebook_ads   # Windsor.ai Meta Ads (date, account_id, campaign, spend, impressions, clicks, actions_lead)

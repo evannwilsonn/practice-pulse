@@ -1,0 +1,37 @@
+cdt_code,description,category,specialty,is_new_patient_code,typical_fee
+D0120,Periodic oral evaluation,Diagnostic,General,false,65
+D0150,Comprehensive oral evaluation (new patient),Diagnostic,General,true,110
+D0140,Limited evaluation (problem focused),Diagnostic,General,false,85
+D0210,Full mouth radiographs,Diagnostic,General,false,150
+D0220,Periapical radiograph - first image,Diagnostic,General,false,35
+D0274,Bitewings - four films,Diagnostic,General,false,75
+D0330,Panoramic radiograph,Diagnostic,General,false,130
+D0367,Cone beam CT - both jaws,Diagnostic,General,false,350
+D1110,Prophylaxis - adult,Preventive,General,false,115
+D1120,Prophylaxis - child,Preventive,General,false,85
+D1206,Fluoride varnish,Preventive,General,false,45
+D4341,Scaling and root planing (4+ teeth per quadrant),Periodontics,General,false,260
+D4910,Periodontal maintenance,Periodontics,General,false,160
+D2391,Resin composite - one surface posterior,Restorative,General,false,210
+D2392,Resin composite - two surfaces posterior,Restorative,General,false,260
+D2950,Core buildup,Restorative,General,false,290
+D2740,Crown - porcelain/ceramic,Prosthodontics,General,false,1250
+D6010,Implant body - endosteal,Implants,General,false,2200
+D3310,Root canal - anterior,Endodontics,Endodontics,false,950
+D3320,Root canal - premolar,Endodontics,Endodontics,false,1050
+D3330,Root canal - molar,Endodontics,Endodontics,false,1250
+D3346,Retreatment of root canal - anterior,Endodontics,Endodontics,false,1400
+D9310,Consultation (referred patient),Diagnostic,Endodontics,true,150
+D7140,Extraction - erupted tooth,Oral Surgery,General,false,190
+D7210,Extraction - surgical,Oral Surgery,General,false,360
+D8660,Pre-orthodontic treatment visit,Orthodontics,Orthodontics,true,175
+D8080,Comprehensive orthodontic treatment - adolescent,Orthodontics,Orthodontics,false,5800
+D8090,Comprehensive orthodontic treatment - adult,Orthodontics,Orthodontics,false,6400
+D8670,Periodic orthodontic treatment visit,Orthodontics,Orthodontics,false,220
+D8680,Orthodontic retention,Orthodontics,Orthodontics,false,450
+D4342,Scaling and root planing (1-3 teeth per quadrant),Periodontics,Periodontics,false,190
+D4260,Osseous surgery (4+ teeth per quadrant),Periodontics,Periodontics,false,1100
+D4273,Connective tissue graft - first tooth,Periodontics,Periodontics,false,1150
+D7240,Removal of impacted tooth - completely bony,Oral Surgery,Oral Surgery,false,520
+D7953,Bone replacement graft - ridge preservation,Oral Surgery,Oral Surgery,false,650
+D9239,IV moderate sedation - first 15 minutes,Sedation & Anesthesia,Oral Surgery,false,350

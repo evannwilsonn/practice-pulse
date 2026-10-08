@@ -1,0 +1,1242 @@
+<meta charset="utf-8">
+<title>Northwind Practice Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Layout: brand bar -> filter row -> tabs (Overview / Expenses / Offices / Marketing / Data checks).
+   Overview opens with a plain-English summary sentence, then six explained numbers. */
+:root {
+  color-scheme: light;
+  /* Northwind website palette: deep indigo hero, teal accent (#7c6ae6), navy ink */
+  --ground: #e9edf2; --surface: #ffffff; --sunk: #f2f5f9; --line: #d6dce5; --grid: #e8ecf3;
+  --ink: #102639; --ink-2: #3b4a5c; --ink-3: #5f6c7b;
+  --teal: #5b4bc4; --teal-bright: #7c6ae6; --teal-soft: #ece9fb; --navy: #102639; --navy-2: #1a3550; --bar: #2f5f9e; --bar-2: #7c6ae6;
+  --good: #1f7a50; --good-bg: #e2f3ea; --watch: #8a5a00; --watch-bg: #fbf0d9; --act: #b3392c; --act-bg: #fbe6e3;
+  --watch-mark: #d99a1c; --act-mark: #cf4a3c;
+  --hero: linear-gradient(115deg, #00052c 0%, #050d3a 40%, #28375b 78%, #4a5d84 100%);
+  --tab-active: linear-gradient(115deg, #1a2a5e 0%, #3a4c78 55%, #7d8db0 100%);
+  --font: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --display: "Roboto Condensed", "Roboto", "Segoe UI", system-ui, sans-serif;
+  --r-lg: 12px; --r: 8px;
+}
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 15px/1.55 var(--font); }
+button, select { font: inherit; color: inherit }
+.num { font-variant-numeric: tabular-nums }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: 0; font-family: var(--display) }
+h2 { font-size: 1.25rem; font-weight: 600 }
+h3 { font-size: .98rem; font-weight: 600 }
+p { margin: 0 }
+.muted { color: var(--ink-3) }
+
+.brand { background: var(--ground); color: var(--ink); padding-inline: 20px }
+.band { background: linear-gradient(to bottom, transparent calc(100% - 70px), var(--ground) 100%), var(--hero); color: #fff; padding-inline: 20px; overflow: hidden }
+.band-in { max-width: 1200px; margin: 0 auto; padding-block: 22px 96px; display: grid; gap: 14px }
+.band-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.wordmark { font-family: var(--display); font-weight: 500; font-size: 1.2rem; letter-spacing: .01em; color: #fff; display: flex; align-items: center; gap: 10px }
+.wordmark::before { content: ""; width: 22px; height: 3px; border-radius: 2px; background: var(--teal-bright) }
+.band .summary { font-family: var(--display); font-weight: 400; font-size: clamp(1.35rem, 2.7vw, 2.1rem); line-height: 1.28; color: rgb(255 255 255 / .74); max-width: 33em; margin: 0 }
+.band .summary b { color: #fff; font-weight: 600 }
+.pulse-fig { margin: 4px 0 0; position: relative }
+#pulse { position: relative; height: 92px }
+#pulse svg { display: block; width: 100%; height: 92px; overflow: visible }
+.pdot { position: absolute; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: var(--teal-bright); box-shadow: 0 0 0 5px rgb(124 106 230 / .25), 0 0 18px rgb(124 106 230 / .7) }
+.pulse-fig figcaption { display: flex; justify-content: space-between; gap: 12px; font-size: .8rem; color: rgb(255 255 255 / .62); margin-top: 6px }
+.pulse-fig figcaption span:nth-child(2) { text-align: center }
+@keyframes pin { to { opacity: 1 } }
+.brand-in { max-width: 1200px; margin: 0 auto; padding-block: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.logo { width: 40px; height: 40px; border-radius: 9px; background: #fff; display: grid; place-items: center; flex: none }
+.logo img { width: 34px; height: 34px }
+.brand-name { font-family: var(--font); font-weight: 500; font-size: 1.08rem; line-height: 1.12; color: #1d3b5c; max-width: 7.5em }
+.sample { margin-left: auto; font-size: .8rem; font-weight: 500; color: #fff; border: 1px solid rgb(124 106 230 / .7); background: rgb(124 106 230 / .16); padding: 4px 12px; border-radius: 99px }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 20px; padding-block: 18px 56px; display: grid; gap: 18px }
+
+.filters { position: relative; z-index: 2; margin-top: -66px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; background: var(--surface); border-radius: 12px; padding: 14px 18px 16px; box-shadow: 0 14px 34px rgb(16 38 57 / .16), 0 1px 2px rgb(16 38 57 / .08) }
+.filters label { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; color: var(--ink-2) }
+select { background-color: var(--navy); color: #d6dce6; border: 1px solid var(--navy); border-radius: var(--r); padding: 9px 34px 9px 12px; min-width: 150px;
+  appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, #d6dce6 50%), linear-gradient(135deg, #d6dce6 50%, transparent 50%);
+  background-position: calc(100% - 17px) 54%, calc(100% - 12px) 54%; background-size: 5px 5px; background-repeat: no-repeat }
+select:hover { background-color: var(--navy-2) }
+select option { background: #ffffff; color: #061b31 }
+select:focus-visible, button:focus-visible, th:focus-visible, summary:focus-visible { outline: 3px solid var(--teal-bright); outline-offset: 2px }
+@media (max-width: 560px) { .filters label { flex: 1 1 45% } select { min-width: 0; width: 100% } }
+
+.tabs { display: flex; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 4px 6px 0; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none }
+.tab { border: 0; background: none; padding: 11px 16px 12px; font-weight: 500; color: var(--ink-3); cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent }
+.tab { border-radius: 6px 6px 0 0 }
+.tab[aria-selected="true"] { color: #ffffff; font-weight: 600; background: var(--hero); border-bottom-color: var(--teal-bright) }
+.tab:hover { color: var(--navy) }
+.tab[aria-selected="true"]:hover { color: #ffffff }
+
+.view { display: grid; gap: 18px; padding-top: 10px }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px 20px; min-width: 0 }
+.card-head { display: grid; gap: 4px; margin: -18px -20px 16px; padding: 13px 20px 14px; background: var(--navy); color: #fff; border-radius: var(--r-lg) var(--r-lg) 0 0 }
+.card-head h2 { color: #fff; position: relative; padding-bottom: 8px }
+.card-head h2::after { content: ""; position: absolute; left: 0; bottom: 0; width: 36px; height: 3px; background: var(--teal-bright); border-radius: 2px }
+.card-head .legend { color: rgb(255 255 255 / .85) }
+.card-head .big-total { color: #fff }
+.card-head p { font-size: .86rem; color: rgb(255 255 255 / .72); max-width: 80ch }
+.card-head .legend { margin-top: 4px }
+
+.summary { font-size: clamp(1.12rem, 2.1vw, 1.45rem); line-height: 1.45; font-weight: 500; max-width: 64ch; color: var(--ink-2) }
+.summary b { color: var(--ink); font-weight: 700 }
+
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
+@media (max-width: 920px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 560px) { .metrics { grid-template-columns: minmax(0, 1fr) } }
+.metric { display: grid; gap: 4px; align-content: start; position: relative; padding-left: 24px }
+.metric::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 5px; border-radius: 0 4px 4px 0; background: var(--line) }
+.metric.s-good::before { background: var(--good) }
+.metric.s-watch::before { background: var(--watch-mark) }
+.metric.s-act::before { background: var(--act-mark) }
+.metric .label { font-weight: 600; color: #2f5f9e; font-size: .92rem; padding-right: 112px }
+.metric .spark { position: absolute; top: 16px; right: 18px; width: 104px; height: 32px; overflow: visible }
+.metric .value { font-family: var(--display); font-size: 2.15rem; font-weight: 600; line-height: 1.1; letter-spacing: 0; color: #1f4f8f }
+.metric .change { font-size: .82rem; font-weight: 500 }
+.metric .label .status { margin-left: 8px; font-size: .7rem; padding: 2px 8px; vertical-align: 1px }
+.change.better { color: var(--good) } .change.worse { color: var(--act) } .change.same { color: var(--ink-3) }
+.metric .means { font-size: .84rem; color: var(--ink-3) }
+
+.status { display: inline-flex; align-items: center; font-size: .78rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; white-space: nowrap }
+.status.act { background: var(--act-bg); color: var(--act) }
+.status.watch { background: var(--watch-bg); color: var(--watch) }
+.status.good { background: var(--good-bg); color: var(--good) }
+
+.alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px }
+.alert { display: grid; grid-template-columns: 8.5rem 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: var(--r); background: var(--sunk) }
+.alert p { color: var(--ink-2) }
+.alert b { color: var(--ink) }
+.alert .why { font-size: .82rem; color: var(--ink-3); margin-top: 3px }
+@media (max-width: 560px) { .alert { grid-template-columns: 1fr } }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px }
+@media (max-width: 920px) { .two { grid-template-columns: minmax(0, 1fr) } }
+
+svg { display: block; width: 100%; height: auto; overflow: visible }
+svg text { fill: var(--ink-3); font: 12px var(--font) }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .85rem; color: var(--ink-2) }
+.legend i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; margin-right: 7px; vertical-align: middle }
+
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--surface); padding: 9px 12px; border-radius: 9px;
+  font-size: .84rem; line-height: 1.45; z-index: 10; max-width: 270px; box-shadow: 0 8px 24px rgb(10 20 40 / .22) }
+
+.explorer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 24px }
+@media (max-width: 920px) { .explorer { grid-template-columns: minmax(0, 1fr) } }
+.cat { display: grid; grid-template-columns: minmax(0, 14rem) 1fr auto; gap: 12px; align-items: center; width: 100%;
+  padding: 9px 10px; border: 0; border-radius: var(--r); background: transparent; text-align: left; cursor: pointer }
+.cat:hover { background: var(--sunk) }
+.cat[aria-pressed="true"] { background: var(--teal-soft) }
+.cat .nm { font-weight: 600; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.cat .track { height: 10px; border-radius: 5px; background: var(--grid); overflow: hidden }
+.cat .fill { display: block; height: 100%; border-radius: 5px; background: var(--bar-2) }
+.cat .v { font-size: .88rem; color: var(--ink-2); min-width: 9rem; text-align: right }
+@media (max-width: 560px) { .cat { grid-template-columns: minmax(0, 1fr) auto } .cat .track { grid-column: 1 / -1; order: 3 } .cat .v { min-width: 0 } }
+.big-total { font-family: var(--display); font-size: 1.7rem; font-weight: 600; color: var(--ink) }
+
+.tbl { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-size: .9rem }
+th { text-align: right; font-size: .8rem; font-weight: 600; color: var(--ink-3); padding: 9px 10px; border-bottom: 1px solid var(--line); white-space: nowrap }
+th:first-child, td:first-child { text-align: left }
+th.sortable { cursor: pointer } th.sortable:hover { color: var(--ink) }
+th[aria-sort] { color: var(--teal) }
+td { padding: 11px 10px; border-bottom: 1px solid var(--grid); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap }
+td:first-child { font-weight: 600 }
+td small { display: block; font-weight: 400; color: var(--ink-3); font-size: .78rem }
+td.f-act { color: var(--act); font-weight: 700 } td.f-watch { color: var(--watch); font-weight: 700 }
+tr:hover td { background: var(--sunk) }
+#offices-table { min-width: 940px }
+
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px }
+.check { padding: 14px 16px; border-radius: var(--r); background: var(--sunk); display: grid; gap: 4px; align-content: start }
+.check b { font-size: 1.05rem }
+.sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px }
+.source { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r); display: grid; gap: 2px }
+.source b { font-size: .95rem }
+
+details.help { font-size: .9rem; color: var(--ink-2) }
+details.help summary { cursor: pointer; font-weight: 600; color: var(--teal) }
+details.help dl { display: grid; grid-template-columns: minmax(0, 12rem) 1fr; gap: 8px 16px; margin: 14px 0 0 }
+details.help dt { font-weight: 600; color: var(--ink) }
+details.help dd { margin: 0 }
+@media (max-width: 560px) { details.help dl { grid-template-columns: 1fr } details.help dd { margin-bottom: 6px } }
+
+footer { color: var(--ink-3); font-size: .82rem; line-height: 1.6; max-width: 90ch }
+/* interaction states */
+.tab, .btn, .cat, .metric, .linkbtn, .rowlink, select { transition: background-color .12s, color .12s, box-shadow .12s, transform .08s }
+.tab:active, .cat:active, .linkbtn:active { transform: translateY(1px) }
+button.metric { font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; border: 1px solid var(--line) }
+button.metric:hover { border-color: var(--teal-bright); box-shadow: 0 6px 18px rgb(16 38 57 / .08) }
+button.metric:active { transform: translateY(1px) }
+.metric .go { font-size: .8rem; font-weight: 500; color: var(--teal); margin-top: 4px }
+button.metric:hover .go { text-decoration: underline }
+.linkbtn { border: 0; background: none; padding: 4px 0; font: inherit; font-size: .84rem; font-weight: 600; color: var(--teal); cursor: pointer; white-space: nowrap }
+.linkbtn:hover { color: var(--navy); text-decoration: underline }
+.alert { grid-template-columns: 8.5rem 1fr auto !important; align-items: center }
+.rowlink { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left }
+.rowlink:hover { color: var(--teal); text-decoration: underline }
+.lab-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px }
+.reset-link { border: 0; background: none; padding: 0; font: inherit; font-size: .8rem; font-weight: 600; color: var(--teal); cursor: pointer }
+.reset-link:hover { color: var(--navy); text-decoration: underline }
+.bh.go { cursor: pointer }
+@media (prefers-reduced-motion: reduce) { .tab, .btn, .cat, .metric, .linkbtn, .rowlink, select { transition: none } .tab:active, .cat:active, .linkbtn:active, button.metric:active { transform: none } }
+.tbl-scroll { max-height: 560px; overflow: auto }
+.tbl-scroll thead th { position: sticky; top: 0; background: var(--surface); z-index: 1 }
+#offices-table td { padding-block: 8px }
+/* Compare */
+.cmp-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; font-size: .86rem; margin-bottom: 12px }
+.cmp-ctrls { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 14px; padding: 14px; background: var(--sunk); border-radius: var(--r) }
+.cmp-ctrls label { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; color: var(--ink-2) }
+.cmp-ctrls select { min-width: 190px }
+.cmp-check { display: flex !important; align-items: center; gap: 8px; align-self: center; font-weight: 500 !important }
+.cmp-swap { align-self: end; height: 38px; width: 38px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); color: var(--navy); font-size: 1.1rem; cursor: pointer }
+.cmp-swap:hover { border-color: var(--teal-bright) }
+.cmp-head { margin: 16px 0 10px; font-size: 1rem; color: var(--ink-2); max-width: 80ch }
+.cmp-head b { color: var(--ink) }
+.cmp-key { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: .84rem; color: var(--ink-2); margin-bottom: 8px }
+.cmp-key i { display: inline-block; width: 12px; height: 10px; border-radius: 2px; margin-right: 7px; vertical-align: 0 }
+.ka, .cmp-bars .ba { background: var(--navy) } .kb, .cmp-bars .bb { background: var(--teal-bright) }
+.cmp-t td:first-child { text-align: left; font-weight: 500 } .cmp-t th:first-child { text-align: left }
+.cmp-t td.c-good { color: var(--good); font-weight: 600 } .cmp-t td.c-bad { color: var(--act); font-weight: 600 }
+.cmp-bars { width: 26%; min-width: 140px } .cmp-bars span { display: block; height: 7px; border-radius: 0 3px 3px 0; margin: 2px 0 }
+.cmp-na td { color: var(--ink-3); font-size: .84rem } .cmp-na td:first-child { color: var(--ink-2) }
+.cmp-empty { padding: 18px; color: var(--ink-2); background: var(--sunk); border-radius: var(--r) }
+/* Ask AI */
+.ai-card { display: grid; gap: 12px }
+.ai-intro p { color: var(--ink-2); max-width: 70ch }
+.ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px }
+.ai-chip { border: 1px solid var(--line); background: var(--sunk); color: var(--navy); border-radius: 99px; padding: 7px 14px; font: inherit; font-size: .86rem; cursor: pointer; text-align: left }
+.ai-chip:hover { border-color: var(--teal-bright); background: var(--surface) }
+.ai-log { display: grid; gap: 12px; max-height: 60vh; overflow: auto; padding-right: 4px }
+.ai-log:empty { display: none }
+.ai-msg { max-width: 82ch; padding: 12px 16px; border-radius: 12px; line-height: 1.55; font-size: .94rem }
+.ai-msg.you { justify-self: end; background: var(--navy); color: #fff; border-bottom-right-radius: 4px }
+.ai-msg.bot { justify-self: start; background: var(--sunk); color: var(--ink); border-bottom-left-radius: 4px }
+.ai-msg.bot p { margin: 0 0 8px } .ai-msg.bot p:last-child { margin-bottom: 0 }
+.ai-msg.bot ul { margin: 4px 0 10px; padding-left: 20px } .ai-msg.bot li { margin: 3px 0 }
+.ai-msg.bot h4 { margin: 10px 0 4px; font-family: var(--display); font-size: 1rem; color: var(--navy) }
+.ai-msg.thinking .ai-txt { color: var(--ink-3); font-style: italic }
+.ai-msg.err { background: var(--act-bg) }
+.ai-note { font-size: .82rem; color: var(--ink-3) }
+.ai-form { display: grid; gap: 8px }
+.ai-form textarea { width: 100%; resize: vertical; min-height: 54px; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); color: var(--ink); background: var(--surface) }
+.ai-form textarea:focus-visible { outline: 3px solid var(--teal-bright); outline-offset: 1px }
+.ai-btns { display: flex; justify-content: flex-end; align-items: center; gap: 12px }
+.ai-btns .btn { padding: 9px 22px }
+.ai-stop { color: var(--navy) !important; border-color: var(--line) !important }
+.ai-foot { font-size: .8rem; color: var(--ink-3) }
+.tab-tools { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 16px; margin-bottom: 12px }
+.tab-period { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; color: var(--ink-2) }
+/* P&L tab */
+.pnl td:first-child { text-align: left; white-space: normal }
+.pnl th:first-child { text-align: left }
+.pnl .p-sec td { background: var(--sunk); font-family: var(--display); font-weight: 600; color: var(--navy); font-size: .95rem; padding-block: 8px }
+.pnl .p-bold td { font-weight: 700 }
+.pnl .p-sub td { color: var(--ink-2) }
+.pnl .p-ind td:first-child { padding-left: 42px; font-weight: 400; color: var(--ink-2); font-size: .86rem }
+.pnl .p-ind td { font-size: .86rem; color: var(--ink-2) }
+.pnl .p-total td { border-top: 2px solid var(--navy); font-size: 1rem; color: var(--navy) }
+.p-tog { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left }
+.p-tog:hover { color: var(--teal) }
+.p-tog .chev { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 8px; border-radius: 4px; background: var(--sunk); color: var(--ink-2); font-weight: 700 }
+td.c-good { color: var(--good) } td.c-bad { color: var(--act) }
+.pnl-actions { margin-top: 12px }
+/* P&L card on Overview */
+.pnl-card { cursor: pointer; border: 1px solid var(--line) }
+.pnl-card:focus-visible { outline: 3px solid var(--teal-bright); outline-offset: 2px }
+.pnl-card:hover { border-color: var(--teal-bright); box-shadow: 0 6px 18px rgb(16 38 57 / .08) }
+.pnl-card .card-head h2 { font-size: 1.25rem }
+.pc-body { display: grid; gap: 14px }
+.pc-figs { display: flex; flex-wrap: wrap; gap: 12px 48px }
+.pc-figs div { display: grid; gap: 2px }
+.pc-figs span { font-size: .84rem; font-weight: 600; color: #2f5f9e }
+.pc-figs b { font-family: var(--display); font-weight: 600; font-size: 1.7rem; color: #1f4f8f; line-height: 1.1 }
+.pc-figs .pc-profit { color: var(--teal) }
+.pc-figs small { font-size: .82rem; color: var(--ink-3) }
+.pc-bar { display: flex; height: 16px; border-radius: 4px; overflow: hidden; gap: 2px; background: var(--surface) }
+.pc-bar i { display: block; height: 100% }
+.pc-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: .84rem; color: var(--ink-2) }
+.pc-key li { display: flex; align-items: center; gap: 7px }
+.pc-key i { width: 10px; height: 10px; border-radius: 2px }
+.pc-key b { color: var(--ink); font-weight: 600 }
+.pc-note { font-size: .82rem; color: var(--ink-3) }
+/* Reports tab */
+.tab-ai { margin-left: auto }
+.report-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px }
+.rep-item { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 16px; text-align: left; font: inherit; color: inherit;
+  background: var(--sunk); border: 1px solid transparent; border-radius: var(--r); padding: 12px 16px; cursor: pointer }
+.rep-item:hover { border-color: var(--teal-bright); background: var(--surface) }
+.ri-name { font-weight: 600; color: var(--navy) }
+.ri-desc { grid-row: 2; font-size: .86rem; color: var(--ink-3) }
+.ri-open { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: .86rem; font-weight: 600; color: var(--teal) }
+/* full-screen report */
+body.rep-open { overflow: hidden }
+.report { position: fixed; inset: 0; z-index: 30; background: var(--ground); overflow: auto }
+.rep-bar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 20px; background: var(--hero); color: #fff }
+.rep-back { border: 1px solid rgb(255 255 255 / .4); background: none; color: #fff; border-radius: 6px; padding: 7px 14px; font: inherit; font-size: .88rem; cursor: pointer }
+.rep-back:hover { background: rgb(255 255 255 / .1) }
+.rep-acts { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px }
+.rep-ghost { border: 1px solid rgb(255 255 255 / .4); background: none; color: #fff; border-radius: 4px; padding: 8px 14px; font: inherit; font-size: .84rem; font-weight: 500; cursor: pointer }
+.rep-ghost:hover { background: rgb(255 255 255 / .1) }
+.rep-msg { font-size: .84rem; color: rgb(255 255 255 / .8) }
+.rep-paper { max-width: 960px; margin: 24px auto 48px; background: #fff; border-radius: 10px; padding: 36px 44px; box-shadow: 0 10px 30px rgb(16 38 57 / .12); color: #102639 }
+.rep-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 3px solid #7c6ae6 }
+.rep-brand { display: flex; align-items: center; gap: 10px; font-weight: 500; color: #1d3b5c }
+.rep-brand img { width: 30px; height: 30px }
+.rep-gen { font-size: .84rem; color: #5f6c7b }
+.rep-paper h1 { font-family: var(--display); font-weight: 600; font-size: 1.7rem; margin-top: 22px; color: #102639 }
+.rep-scope { color: #3b4a5c; margin: 4px 0 18px }
+.rep-t { width: 100%; border-collapse: collapse; font-size: .86rem }
+.rep-t th { text-align: left; font-size: .76rem; font-weight: 600; color: #5f6c7b; padding: 8px; border-bottom: 1px solid #c9d1dc; white-space: nowrap }
+.rep-t td { padding: 7px 8px; border-bottom: 1px solid #e8ecf3; text-align: left; white-space: normal }
+.rep-t .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap }
+.rep-t tr.sec td { background: #f2f5f9; font-weight: 600; color: #102639; padding-top: 10px }
+.rep-t tr.b td { font-weight: 700 } .rep-t tr.rcat td { font-weight: 600 }
+.rep-t tr.ind td:first-child { padding-left: 26px; color: #3b4a5c }
+.rep-t tr.tot td { border-top: 2px solid #102639 }
+.rep-t td:first-child { font-weight: 400 }
+.rep-t tr.b td { font-weight: 700 } .rep-t tr.sec td { font-weight: 600 }
+.rep-t tr:hover td { background: none } .rep-t tr.sec:hover td { background: #f2f5f9 }
+.pnl td:first-child { font-weight: 500 } .pnl .p-bold td:first-child { font-weight: 700 }
+.rep-foot { margin-top: 22px; font-size: .78rem; color: #5f6c7b }
+@media (max-width: 640px) { .rep-paper { padding: 22px 16px; margin: 12px } }
+@media print {
+  @page { margin: 14mm }
+  body > *:not(#report) { display: none !important }
+  .report { position: static; overflow: visible; background: #fff }
+  .rep-bar { display: none }
+  .rep-paper { box-shadow: none; margin: 0; padding: 0; max-width: none }
+  .rep-t tr { break-inside: avoid }
+}
+</style>
+
+<header class="brand">
+  <div class="brand-in">
+    <div class="logo"><img alt="Northwind Dental Group logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='17' fill='none' stroke='%23102639' stroke-width='3'/><path d='M20 7 L24 20 L20 33 L16 20 Z' fill='%237c6ae6'/><circle cx='20' cy='20' r='3' fill='%23102639'/></svg>"></div>
+    <div class="brand-name">Northwind Dental Group</div>
+  </div>
+</header>
+<div class="band"><div class="band-in">
+  <div class="band-top"><h1 class="wordmark">Practice Pulse</h1><span class="sample">Demo with sample data</span></div>
+  <p class="summary" id="summary">Bringing every office's numbers together.</p>
+  <figure class="pulse-fig"><div id="pulse"></div><figcaption id="pulse-cap"></figcaption></figure>
+</div></div>
+
+<div class="wrap">
+  <div class="filters">
+    <label for="f-region">Region<select id="f-region"></select></label>
+    <label for="f-spec">Practice type<select id="f-spec"></select></label>
+    <label for="f-loc"><span class="lab-row">Office<button type="button" class="reset-link" id="reset" hidden>Show all offices</button></span><select id="f-loc"></select></label>
+    <label for="f-period">Time period<select id="f-period">
+      <option value="1">Last month</option><option value="3">Last 3 months</option><option value="6" selected>Last 6 months</option>
+      <option value="12">Last 12 months</option><option value="18">Last 18 months</option>
+    </select></label>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-tab="expenses" aria-selected="false">Expenses</button>
+    <button class="tab" role="tab" data-tab="offices" aria-selected="false">Offices</button>
+    <button class="tab" role="tab" data-tab="marketing" aria-selected="false">Marketing &amp; procedures</button>
+    <button class="tab" role="tab" data-tab="checks" aria-selected="false">Data checks</button>
+    <button class="tab" role="tab" data-tab="compare" aria-selected="false">Compare</button>
+    <button class="tab" role="tab" data-tab="pnl" aria-selected="false">P&amp;L</button>
+    <button class="tab tab-ai" role="tab" data-tab="ai" aria-selected="false">Ask AI</button>
+    <button class="tab" role="tab" data-tab="reports" aria-selected="false">Reports</button>
+  </nav>
+
+  <section class="view" id="v-overview" role="tabpanel">
+    <div class="metrics" id="metrics"></div>
+    <div class="card pnl-card" id="pnl-card" role="button" tabindex="0" aria-label="Profit and loss. Open the full statement."><div class="card-head"><h2>Profit and loss</h2><p>Where each dollar collected went. Click to open the full statement.</p></div><div class="pc-body"></div></div>
+    <div class="card">
+      <div class="card-head"><h2>What needs attention</h2><p>Problems that only show up when the systems are looked at together.</p></div>
+      <ul class="alerts" id="alerts"></ul>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Money in, month by month</h2>
+        <div class="legend"><span><i style="background:var(--bar)"></i>Work done (gross production)</span><span><i style="background:var(--teal)"></i>Money collected</span></div></div>
+      <div id="trend"></div>
+    </div>
+    <details class="help card">
+      <summary>What do these numbers mean?</summary>
+      <dl>
+        <dt>Gross production</dt><dd>The full fee value of all completed dental work, before insurance write-offs.</dd>
+        <dt>Collection rate</dt><dd>Of what patients and insurers owe after write-offs, the share actually collected. Healthy offices stay above 95%.</dd>
+        <dt>Staff labor %</dt><dd>Hourly staff pay (from UKG) as a share of production. Lower means the team is efficient for the work being done.</dd>
+        <dt>Cost per new patient</dt><dd>Advertising spend divided by new patients seen. It shows what it costs to bring someone in.</dd>
+        <dt>No-show rate</dt><dd>Share of scheduled appointments where the patient didn't come.</dd>
+        <dt>Operating margin</dt><dd>What's left of collections after every operating expense: payroll, doctors, rent, supplies, repairs, software and more.</dd>
+      </dl>
+    </details>
+  </section>
+
+  <section class="view" id="v-expenses" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Where the money goes</h2><p id="opex-sub"></p></div>
+      <div class="explorer">
+        <div><p class="muted" style="font-size:.86rem;margin-bottom:6px">Pick a category to see its line items. Amounts are shown as a share of money collected.</p><div id="cats"></div></div>
+        <div><h3 id="lines-title" style="margin-bottom:8px"></h3><div class="tbl"><table id="lines"><thead></thead><tbody></tbody></table></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-offices" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Staff labor by office</h2><p>Hourly staff pay as a share of production, highest first. Amber marks offices well above others of the same type.</p></div>
+      <div id="labor"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Office scorecard</h2><p>Click any column to sort. Red and amber mark numbers outside target.</p></div>
+      <div class="tbl tbl-scroll"><table id="offices-table"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-marketing" role="tabpanel" hidden>
+    <div class="two">
+      <div class="card">
+        <div class="card-head"><h2>Cost to book one appointment</h2><p>Ad spend divided by appointments booked from the website, by channel.</p></div>
+        <div id="mkt"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>What kind of work is done</h2><p>Share of production by procedure type, grouped from CDT codes.</p></div>
+        <div id="mix"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-checks" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Do the books match?</h2><p>Sage Intacct compared with the system that tracks each number day to day.</p></div>
+      <div class="checks" id="checks"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Where the data comes from</h2><p>Every source feeds the same warehouse. Today these are sample files shaped like each system's export.</p></div>
+      <div class="sources" id="sources"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-compare" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Compare</h2><p>Put any office, office type or the whole group side by side, for the same period or against an earlier one.</p></div>
+      <div class="cmp-presets"><span class="muted">Quick picks:</span>
+        <button class="linkbtn cmp-preset" data-p="mom">This month vs last month</button><button class="linkbtn cmp-preset" data-p="wow">This week vs last week</button>
+        <button class="linkbtn cmp-preset" data-p="yoy">Quarter vs a year earlier</button><button class="linkbtn cmp-preset" data-p="peer">Office vs its type</button></div>
+      <div class="cmp-ctrls">
+        <label>Compare<select id="cmp-a"></select></label>
+        <button type="button" class="cmp-swap" id="cmp-swap" title="Swap the two sides" aria-label="Swap the two sides">⇄</button>
+        <label>With<select id="cmp-b"></select></label>
+        <label>Period<select id="cmp-p"><option value="week">Last week</option><option value="month">Last month</option><option value="quarter">Last quarter</option><option value="year">Last 12 months</option></select></label>
+        <label>Second side covers<select id="cmp-m"><option value="same">The same period</option><option value="before">The period before</option><option value="year">The same period a year earlier</option></select></label>
+        <label class="cmp-check"><input type="checkbox" id="cmp-avg" checked> Per-office averages</label>
+        <button type="button" class="linkbtn" id="cmp-reset">Reset</button>
+      </div>
+      <p class="cmp-head" id="cmp-head"></p>
+      <div class="tbl" id="cmp-out"></div>
+      <div class="pnl-actions"><button class="linkbtn" id="cmp-open">Open as a report to print or download</button></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-ai" role="tabpanel" hidden>
+    <div class="card ai-card">
+      <div class="card-head"><h2>Ask AI</h2><p id="ai-scope"></p></div>
+      <div class="ai-intro" id="ai-intro">
+        <p>Ask anything about the numbers. Claude looks up the data, explains what's going on and suggests what to do about it.</p>
+        <div class="ai-chips"><button class="ai-chip">Which offices need attention right now, and why?</button><button class="ai-chip">Why did operating margin change from the period before?</button>
+          <button class="ai-chip">How does Gulf Breeze compare with other general offices?</button><button class="ai-chip">Where could we cut expenses without hurting patient care?</button>
+          <button class="ai-chip">Which marketing channel gives us the best return?</button></div>
+      </div>
+      <div class="ai-log" id="ai-log" aria-live="polite"></div>
+      <form class="ai-form" id="ai-form"><textarea id="ai-q" rows="2" placeholder="Ask about offices, expenses, staffing, marketing…" aria-label="Your question"></textarea>
+        <div class="ai-btns"><button type="button" class="linkbtn" id="ai-new">New chat</button><button type="button" class="rep-ghost ai-stop" id="ai-stop" hidden>Stop</button><button type="submit" class="btn" id="ai-send">Ask</button></div></form>
+      <p class="ai-foot">Answers use your Claude account and the warehouse's sample data. Check important figures in the other tabs.</p>
+    </div>
+  </section>
+
+  <section class="view" id="v-pnl" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Profit and loss statement</h2><p id="pnl-sub"></p></div>
+      <p class="sec-note note-opex" hidden></p>
+      <p class="sec-note wait" id="pnl-note" hidden>Some expense months are still loading, so expense totals are incomplete.</p>
+      <div class="tab-tools"><label class="tab-period">Time period<select class="period-mirror"></select></label><p class="muted" style="font-size:.86rem">Click an expense category to see its accounts.</p></div>
+      <div class="tbl"><table id="pnl" class="pnl"></table></div>
+      <div class="pnl-actions"><button class="linkbtn" id="pnl-open">Open as a report to print or download</button></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-reports" role="tabpanel" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Reports</h2><p id="reports-scope"></p></div>
+      <div class="tab-tools"><label class="tab-period">Time period<select class="period-mirror"></select></label></div>
+      <ul class="report-list" id="report-list"></ul>
+    </div>
+  </section>
+
+  <footer>All figures are sample data generated to demonstrate the platform; none are real Northwind numbers.
+    Staff pay comes from UKG, supplies from inventory, ad spend from the marketing feed, and every other expense from Sage Intacct.</footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+<div class="report" id="report" hidden role="dialog" aria-modal="true" aria-labelledby="rep-title">
+  <div class="rep-bar"><button class="rep-back" id="rep-back">Back to dashboard</button><span class="rep-msg" id="rep-msg" role="status"></span>
+    <span class="rep-acts"><button class="btn" id="rep-print">Print or save as PDF</button><button class="rep-ghost" id="rep-csv">Download CSV</button><button class="rep-ghost" id="rep-html">Download printable copy</button></span></div>
+  <div class="rep-paper" id="rep-paper"></div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+const $ = s => document.querySelector(s);
+const LOC = Object.fromEntries(DATA.locations.map(l => [l.location_key, l]));
+const MONTHS = [...new Set(DATA.monthly.map(r => r.month))].sort();
+const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const mLabel = m => { const [y, mo] = m.split("-"); return MN[+mo - 1] + " " + y.slice(2) };
+const mLong = m => { const [y, mo] = m.split("-"); return MN[+mo - 1] + " " + y };
+const money = v => Math.abs(v) >= 1e6 ? "$" + (v / 1e6).toFixed(2) + "M" : Math.abs(v) >= 1e4 ? "$" + Math.round(v / 1e3) + "K" : "$" + Math.round(v).toLocaleString();
+const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+const PMS = { open_dental: "Open Dental", dentrix_ascend: "Dentrix Ascend", sensei: "Sensei Cloud", dolphin: "Dolphin", tdo: "TDO", dentrix: "Dentrix", dox: "Dental Office Xpress" };
+const SPEC = { General: "general dentistry", Orthodontics: "orthodontic", Endodontics: "endodontic" };
+const uniq = a => [...new Set(a)].sort();
+
+$("#f-region").innerHTML = `<option value="all">All regions</option>` + uniq(DATA.locations.map(l => l.region)).map(r => `<option>${r}</option>`).join("");
+$("#f-spec").innerHTML = `<option value="all">All types</option>` + uniq(DATA.locations.map(l => l.specialty)).map(r => `<option>${r}</option>`).join("");
+function fillLocs() {
+  const r = $("#f-region").value, sp = $("#f-spec").value, cur = $("#f-loc").value;
+  const opts = DATA.locations.filter(l => (r === "all" || l.region === r) && (sp === "all" || l.specialty === sp));
+  $("#f-loc").innerHTML = `<option value="all">All offices (${opts.length})</option>` + opts.map(l => `<option value="${l.location_key}">${l.location_name}</option>`).join("");
+  if (opts.some(l => String(l.location_key) === cur)) $("#f-loc").value = cur;
+}
+fillLocs();
+["#f-region", "#f-spec", "#f-loc", "#f-period"].forEach(s => $(s).addEventListener("change", () => { if (s === "#f-region" || s === "#f-spec") fillLocs(); render() }));
+
+function focusOffice(k) {
+  $("#f-region").value = "all"; $("#f-spec").value = "all"; fillLocs(); $("#f-loc").value = String(k);
+  render(); hideTip(); scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+$("#reset").addEventListener("click", () => { $("#f-region").value = "all"; $("#f-spec").value = "all"; fillLocs(); $("#f-loc").value = "all"; render() });
+function goTo(tab, sort) {
+  if (sort) { sortKey = sort; sortDir = ["labor", "ot", "supply", "noshow", "cpnp"].includes(sort) ? -1 : 1; if (sort === "production") sortDir = -1 }
+  showTab(tab); render();
+  const v = document.getElementById("v-" + tab); if (v) v.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.tab === name)));
+  document.querySelectorAll(".view").forEach(v => v.hidden = v.id !== "v-" + name);
+  try { history.replaceState(null, "", "#" + name) } catch (e) {}
+}
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { showTab(t.dataset.tab); if (MONTHS.length) render() }));
+let _rz; addEventListener("resize", () => { clearTimeout(_rz); _rz = setTimeout(() => { if (MONTHS.length) render() }, 150) });
+if (location.hash && document.getElementById("v-" + location.hash.slice(1))) showTab(location.hash.slice(1));
+
+function scope() {
+  const r = $("#f-region").value, sp = $("#f-spec").value, l = $("#f-loc").value, n = +$("#f-period").value;
+  const keys = DATA.locations.filter(x => (r === "all" || x.region === r) && (sp === "all" || x.specialty === sp) && (l === "all" || String(x.location_key) === l)).map(x => x.location_key);
+  return { keys, months: MONTHS.slice(-n), prior: MONTHS.length >= 2 * n ? MONTHS.slice(-2 * n, -n) : null, n };
+}
+const sumRows = rows => rows.reduce((a, r) => { for (const k in r) if (typeof r[k] === "number") a[k] = (a[k] || 0) + r[k]; return a }, {});
+const rowsFor = (keys, months) => DATA.monthly.filter(r => keys.includes(r.location_key) && months.includes(r.month));
+function metrics(t) {
+  return { production: t.gross_production || 0, collections: t.collections || 0, coll: t.collections / t.net_production,
+    labor: t.labor_cost / t.gross_production, ot: t.overtime_hours / t.labor_hours, supply: t.supply_cost / t.gross_production,
+    cpnp: t.marketing_spend / t.new_patients, noshow: t.no_shows / t.scheduled, margin: t.operating_profit / t.collections,
+    newPts: t.new_patients || 0, opex: t.total_opex || 0, net: t.net_production || 0 };
+}
+const RULES = {
+  coll: v => v < 0.93 ? "act" : v < 0.955 ? "watch" : "good",
+  labor: v => v > 0.32 ? "act" : v > 0.30 ? "watch" : "good",
+  ot: v => v > 0.08 ? "act" : v > 0.04 ? "watch" : "good",
+  margin: v => v < 0.08 ? "act" : v < 0.12 ? "watch" : "good",
+  noshow: v => v > 0.10 ? "act" : v > 0.08 ? "watch" : "good",
+};
+const STATUS_TXT = { act: "Needs action", watch: "Keep an eye on", good: "On track" };
+
+const tip = $("#tip");
+const showTip = (e, html) => { tip.innerHTML = html; tip.hidden = false; moveTip(e) };
+function moveTip(e) { const w = tip.offsetWidth; tip.style.left = (e.clientX + 16 + w > innerWidth ? e.clientX - w - 16 : e.clientX + 16) + "px"; tip.style.top = (e.clientY + 16) + "px" }
+const hideTip = () => tip.hidden = true;
+
+function spark(vals) {
+  const ok = vals.filter(v => isFinite(v));
+  if (ok.length < 2) return "";
+  const W = 104, H = 32, lo = Math.min(...ok), hi = Math.max(...ok), sp = hi - lo || 1;
+  const pts = vals.map((v, i) => isFinite(v) ? [i * W / (vals.length - 1), H - 5 - (v - lo) / sp * (H - 10)] : null).filter(Boolean);
+  const d = pts.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join("");
+  const e = pts.at(-1);
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--bar)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${e[0]}" cy="${e[1]}" r="3.5" fill="var(--teal-bright)" stroke="var(--surface)" stroke-width="1.5"/></svg>`;
+}
+
+// ---------- P&L, reports and export ----------
+const sumObj = o => Object.values(o).reduce((a, b) => a + b, 0);
+let _opexM = null, _opexLen = -1;
+const opexMonths = () => { if (_opexLen !== DATA.opex.length) { _opexM = new Set(DATA.opex.map(r => r[1])); _opexLen = DATA.opex.length } return _opexM };
+function pnlData(keys, months) {
+  if (!months) return null;
+  const t = sumRows(rowsFor(keys, months)), cat = {}, acct = {};
+  DATA.opex.forEach(([k, m, i, amt]) => { if (!keys.includes(k) || !months.includes(m)) return;
+    acct[i] = (acct[i] || 0) + amt; const c = DATA.opex_accounts[i][2]; cat[c] = (cat[c] || 0) + amt });
+  const coll = t.collections || 0, opex = sumObj(cat);
+  return { gross: t.gross_production || 0, net: t.net_production || 0, coll, cat, acct, opex, profit: coll - opex,
+    complete: months.every(m => opexMonths().has(m)) };
+}
+const scopeName = keys => keys.length === 1 ? LOC[keys[0]].location_name : keys.length === DATA.locations.length ? `All ${keys.length} offices` : `${keys.length} offices`;
+const periodName = months => months.length === 1 ? mLong(months[0]) : `${mLong(months[0])} to ${mLong(months.at(-1))}`;
+const chg = (a, b) => b ? (a - b) / Math.abs(b) : null;
+const fmtChg = v => v == null || !isFinite(v) ? "" : (v > 0 ? "+" : "") + (v * 100).toFixed(1) + "%";
+const fullMoney = v => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString();
+
+let pnlOpen = new Set();
+function pnlRows(keys, months, prior) {
+  const c = pnlData(keys, months), p = prior ? pnlData(keys, prior) : null;
+  const pc = p && p.complete ? p : null;
+  const R = [];
+  const line = (label, cur, pri, opt = {}) => R.push({ label, cur, pri, pct: opt.noPct ? null : cur / (c.coll || 1), ...opt });
+  R.push({ section: "Revenue" });
+  line("Gross production", c.gross, pc && pc.gross, { noPct: true });
+  line("Adjustments and write-offs", -(c.gross - c.net), pc && -(pc.gross - pc.net), { noPct: true });
+  line("Net production", c.net, pc && pc.net, { noPct: true, sub: true });
+  line("Revenue (money collected)", c.coll, pc && pc.coll, { bold: true });
+  R.push({ section: "Operating expenses" });
+  Object.entries(c.cat).sort((a, b) => b[1] - a[1]).forEach(([name, v]) => {
+    line(name, v, pc && (pc.cat[name] || 0), { cat: name, expense: true });
+    if (pnlOpen.has(name)) Object.entries(c.acct).filter(([i]) => DATA.opex_accounts[i][2] === name).sort((a, b) => b[1] - a[1]).forEach(([i, v2]) => {
+      const a = DATA.opex_accounts[i];
+      line(`${a[1]}  (GL ${a[0]})`, v2, pc && (pc.acct[i] || 0), { indent: true, expense: true });
+    });
+  });
+  line("Total operating expenses", c.opex, pc && pc.opex, { bold: true, expense: true });
+  line("Operating profit", c.profit, pc && pc.profit, { bold: true, total: true });
+  R.push({ label: "Operating margin", cur: c.profit / (c.coll || 1), pri: pc ? pc.profit / (pc.coll || 1) : null, ratio: true, bold: true });
+  return { rows: R, c, pc };
+}
+
+function drawPnl(keys, months, prior, n) {
+  const el = $("#pnl"); if (!el) return;
+  const { rows, c, pc } = pnlRows(keys, months, prior);
+  $("#pnl-sub").textContent = `${scopeName(keys)}, ${periodName(months)}` + (pc ? `, compared with ${n === 1 ? "the month before" : `the ${n} months before`}.` : ".");
+  el.innerHTML = `<thead><tr><th>Line</th><th>${n === 1 ? mLong(months[0]) : `${n} months`}</th><th>% of revenue</th>${pc ? `<th>${n === 1 ? mLong(prior[0]) : `${n} months before`}</th><th>Change</th>` : ""}</tr></thead><tbody>` +
+    rows.map(r => r.section ? `<tr class="p-sec"><td colspan="${pc ? 5 : 3}">${r.section}</td></tr>` :
+      `<tr class="${r.bold ? "p-bold" : ""} ${r.total ? "p-total" : ""} ${r.indent ? "p-ind" : ""} ${r.sub ? "p-sub" : ""}">
+        <td>${r.cat ? `<button class="p-tog" data-c="${r.cat}" aria-expanded="${pnlOpen.has(r.cat)}"><span class="chev">${pnlOpen.has(r.cat) ? "−" : "+"}</span>${r.label}</button>` : r.label}</td>
+        <td>${r.ratio ? pct(r.cur) : fullMoney(r.cur)}</td><td>${r.pct == null || r.ratio ? "" : pct(r.pct)}</td>
+        ${pc ? `<td>${r.pri == null ? "" : r.ratio ? pct(r.pri) : fullMoney(r.pri)}</td><td class="${changeCls(r)}">${r.ratio ? (r.pri == null ? "" : ((r.cur - r.pri) * 100 > 0 ? "+" : "") + ((r.cur - r.pri) * 100).toFixed(1) + " pts") : fmtChg(chg(r.cur, r.pri))}</td>` : ""}</tr>`).join("") + "</tbody>";
+  el.querySelectorAll(".p-tog").forEach(b => b.addEventListener("click", () => { const k = b.dataset.c; pnlOpen.has(k) ? pnlOpen.delete(k) : pnlOpen.add(k); drawPnl(keys, months, prior, n) }));
+  $("#pnl-note").hidden = c.complete;
+}
+function changeCls(r) {
+  if (r.pri == null || r.ratio && r.cur === r.pri) return "";
+  const up = r.cur > r.pri; if (Math.abs(chg(r.cur, r.pri) || 0) < .005) return "";
+  return (r.expense ? !up : up) ? "c-good" : "c-bad";
+}
+
+const PNL_PARTS = ["Staff Payroll & Benefits", "Doctor Compensation", "Clinical Supplies & Lab", "Occupancy"];
+function drawPnlCard(keys, months) {
+  const el = $("#pnl-card"); if (!el) return;
+  const c = pnlData(keys, months), base = c.coll || 1;
+  const parts = PNL_PARTS.filter(p => c.cat[p]).map(p => [p, c.cat[p]]);
+  const other = c.opex - parts.reduce((a, [, v]) => a + v, 0);
+  const segs = [...parts, ["Other expenses", other], ["Operating profit", c.profit]].filter(([, v]) => v > 0);
+  const shade = ["#102639", "#1f4f8f", "#2f5f9e", "#6f8fbf", "#a9bbd6", "#7c6ae6"];
+  el.querySelector(".pc-body").innerHTML = `
+    <div class="pc-figs"><div><span>Revenue</span><b>${money(c.coll)}</b></div><div><span>Operating expenses</span><b>${money(c.opex)}</b></div>
+      <div><span>Operating profit</span><b class="pc-profit">${money(c.profit)}</b><small>${pct(c.profit / base)} margin</small></div></div>
+    <div class="pc-bar" role="img" aria-label="Where each dollar collected went">${segs.map(([l, v], i) => `<i style="width:${(v / base * 100).toFixed(2)}%;background:${i === segs.length - 1 && l === "Operating profit" ? shade[5] : shade[i]}" title="${l}: ${money(v)} (${pct(v / base)})"></i>`).join("")}</div>
+    <ul class="pc-key">${segs.map(([l, v], i) => `<li><i style="background:${i === segs.length - 1 && l === "Operating profit" ? shade[5] : shade[i]}"></i>${l}<b>${pct(v / base, 0)}</b></li>`).join("")}</ul>
+    ${c.complete ? "" : `<p class="pc-note">Some expense months are still loading.</p>`}`;
+}
+
+// ---------- reports ----------
+const REPORTS = [
+  { id: "pnl", name: "Profit and loss statement", desc: "Revenue, every expense category and operating profit, compared with the period before." },
+  { id: "scorecard", name: "Office scorecard", desc: "Production, collections, staff labor, no-shows, new patients and margin for each office." },
+  { id: "expenses", name: "Expense detail by account", desc: "Every general ledger account with its category, source system and amount." },
+  { id: "marketing", name: "Marketing channels", desc: "Ad spend, website leads, booked appointments and cost per booking by channel." },
+  { id: "mix", name: "Procedure mix", desc: "Production by procedure type, grouped from CDT codes." },
+  { id: "compare", name: "Comparison", desc: "The side-by-side comparison set up on the Compare tab, with the difference on every measure." },
+  { id: "recon", name: "Books reconciliation", desc: "Sage Intacct totals compared with the system that tracks each number day to day." },
+];
+function buildReport(id) {
+  const { keys, months, prior, n } = scope();
+  const per = keys.map(k => ({ k, ...metrics(sumRows(rowsFor([k], months))) })).filter(p => p.production > 0);
+  const out = { title: REPORTS.find(r => r.id === id).name, scope: `${scopeName(keys)}, ${periodName(months)}`, cols: [], rows: [] };
+  const M = v => ({ v: Math.round(v * 100) / 100, t: fullMoney(v), num: true }), P = (v, d = 1) => ({ v: +(v * 100).toFixed(d + 1), t: pct(v, d), num: true }), N = v => ({ v: Math.round(v), t: Math.round(v).toLocaleString(), num: true }), T = v => ({ v, t: v });
+  if (id === "pnl") {
+    const keep = new Set(pnlOpen); Object.keys(pnlData(keys, months).cat).forEach(c => pnlOpen.add(c));
+    const { rows, pc } = pnlRows(keys, months, prior); pnlOpen = keep;
+    out.cols = ["Line", n === 1 ? mLong(months[0]) : `${n} months`, "% of revenue"].concat(pc ? [n === 1 ? mLong(prior[0]) : `${n} months before`, "Change"] : []);
+    if (pc) out.scope += `, compared with ${periodName(prior)}`;
+    rows.forEach(r => {
+      if (r.section) return out.rows.push({ cls: "sec", cells: [T(r.section)] });
+      const cells = [T(r.label), r.ratio ? P(r.cur) : M(r.cur), r.pct == null || r.ratio ? T("") : P(r.pct)];
+      if (pc) cells.push(r.pri == null ? T("") : r.ratio ? P(r.pri) : M(r.pri), { v: r.ratio ? "" : fmtChg(chg(r.cur, r.pri)), t: r.ratio ? "" : fmtChg(chg(r.cur, r.pri)), num: true });
+      out.rows.push({ cls: [r.bold && "b", r.indent && "ind", r.total && "tot", r.cat && "rcat"].filter(Boolean).join(" "), cells });
+    });
+  } else if (id === "scorecard") {
+    out.cols = ["Office", "Type", "Practice system", "Production", "Collected", "Collection rate", "Staff labor", "Overtime", "Supplies", "No-shows", "New patients", "Cost per new patient", "Operating margin"];
+    per.sort((a, b) => b.production - a.production).forEach(p => { const L = LOC[p.k];
+      out.rows.push({ cells: [T(L.location_name), T(L.specialty), T(PMS[L.pms_system]), M(p.production), M(p.collections), P(p.coll), P(p.labor), P(p.ot), P(p.supply), P(p.noshow), N(p.newPts), M(p.cpnp), P(p.margin)] }) });
+  } else if (id === "expenses") {
+    const c = pnlData(keys, months);
+    out.cols = ["GL account", "Account", "Category", "Source", "Amount", "% of revenue"];
+    Object.entries(c.acct).map(([i, v]) => [DATA.opex_accounts[i], v]).sort((a, b) => a[0][2].localeCompare(b[0][2]) || b[1] - a[1])
+      .forEach(([a, v]) => out.rows.push({ cells: [T(a[0]), T(a[1]), T(a[2]), T(a[3]), M(v), P(v / (c.coll || 1), 2)] }));
+    out.rows.push({ cls: "b", cells: [T("Total"), T(""), T(""), T(""), M(c.opex), P(c.opex / (c.coll || 1), 2)] });
+  } else if (id === "marketing") {
+    out.cols = ["Channel", "Spend", "Website leads", "Booked appointments", "Cost per booking"];
+    channelTotals(keys, months).sort((a, b) => b.spend - a.spend).forEach(c => out.rows.push({ cells: [T(c.channel), M(c.spend), N(c.leads), N(c.booked), c.spend && c.booked ? M(c.cpb) : T("")] }));
+  } else if (id === "mix") {
+    const t = {}; DATA.mix.filter(r => keys.includes(r.location_key) && months.includes(r.month)).forEach(r => t[r.cat] = (t[r.cat] || 0) + r.prod);
+    const tot = sumObj(t) || 1; out.cols = ["Procedure type", "Production", "Share of production"];
+    Object.entries(t).sort((a, b) => b[1] - a[1]).forEach(([c, v]) => out.rows.push({ cells: [T(c), M(v), P(v / tot)] }));
+  } else if (id === "compare") {
+    if (!cmp) cmp = cmpDefaults(); const R = compareResult(cmp);
+    out.scope = `${R.la} compared with ${R.lb}` + (R.avg ? ". Dollar amounts and counts are per-office averages." : "");
+    out.cols = ["Measure", groupLabel(cmp.a), groupLabel(cmp.b), "Difference"];
+    R.rows.forEach(r => out.rows.push({ cells: [T(r.label), r.a == null ? T("") : { v: r.a, t: r.fmt(r.a), num: true }, r.b == null ? T("") : { v: r.b, t: r.fmt(r.b), num: true }, { v: fmtDiff(r), t: fmtDiff(r), num: true }] }));
+  } else if (id === "recon") {
+    const t = {}; DATA.recon.filter(r => keys.includes(r.location_key) && months.includes(r.month)).forEach(r => {
+      const o = t[r.category] ||= { src: r.ops_source, ops: 0, gl: 0 }; o.ops += r.ops_amount || 0; o.gl += r.gl_amount || 0 });
+    out.cols = ["Category", "Sage Intacct", "Compared with", "Amount there", "Difference"];
+    Object.entries(t).forEach(([c, o]) => out.rows.push({ cells: [T(c), M(o.gl), T(o.src), M(o.ops), P((o.gl - o.ops) / (o.ops || 1), 2)] }));
+  }
+  return out;
+}
+const escH = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+function reportTable(r) {
+  return `<table class="rep-t"><thead><tr>${r.cols.map((c, i) => `<th class="${i ? "n" : ""}">${escH(c)}</th>`).join("")}</tr></thead><tbody>${
+    r.rows.map(row => `<tr class="${row.cls || ""}">${row.cells.map((c, i) => `<td class="${c.num ? "n" : ""}" ${row.cls === "sec" ? `colspan="${r.cols.length}"` : ""}>${escH(c.t)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+function reportPaper(r) {
+  const logo = $(".logo img") ? $(".logo img").src : "";
+  return `<div class="rep-head"><div class="rep-brand">${logo ? `<img src="${logo}" alt="">` : ""}<span>Northwind Dental Group</span></div><span class="rep-gen">Prepared ${new Date().toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })}</span></div>
+    <h1 id="rep-title">${escH(r.title)}</h1><p class="rep-scope">${escH(r.scope)}</p>${reportTable(r)}
+    <p class="rep-foot">Practice Pulse. Sample data generated to demonstrate the platform; these are not real Northwind numbers.</p>`;
+}
+const toCSV = r => [r.cols, ...r.rows.filter(x => x.cls !== "sec").map(x => x.cells.map(c => c.num ? c.v : c.t))]
+  .map(row => row.map(v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s }).join(",")).join("\r\n");
+const fileBase = r => (r.title + " " + r.scope).replace(/[^\w ,-]+/g, "").replace(/[ ,]+/g, "-").toLowerCase().slice(0, 120);
+
+async function saveFile(filename, data) {
+  let d = null; try { d = window.claude && typeof claude.use === "function" ? await claude.use("downloads") : null } catch (e) {}
+  if (d) {
+    try { await d.save({ filename, data }); return "Saved." }
+    catch (e) { return e && e.code === "declined" ? "Download cancelled." : e && e.code === "rate_limited" ? "A download is already waiting for your answer." : "This view can't save files. Open the page in Claude to download." }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data])); a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  return "Saved.";
+}
+let repCur = null, repReturn = null;
+function openReport(id) {
+  repCur = buildReport(id); repReturn = document.activeElement;
+  $("#rep-paper").innerHTML = reportPaper(repCur); $("#rep-msg").textContent = "";
+  $("#report").hidden = false; document.body.classList.add("rep-open"); $("#report").scrollTop = 0; $("#rep-back").focus();
+}
+function closeReport() { $("#report").hidden = true; document.body.classList.remove("rep-open"); if (repReturn) repReturn.focus() }
+$("#rep-back").addEventListener("click", closeReport);
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("#report").hidden) closeReport() });
+$("#rep-print").addEventListener("click", () => { try { print() } catch (e) { $("#rep-msg").textContent = "Printing is blocked here. Use Download printable copy." } });
+$("#rep-csv").addEventListener("click", async () => { $("#rep-msg").textContent = await saveFile(fileBase(repCur) + ".csv", toCSV(repCur)) });
+$("#rep-html").addEventListener("click", async () => {
+  const css = [...document.querySelectorAll("style")].map(s => s.textContent).join("\n");
+  const doc = `<!doctype html><html><head><meta charset="utf-8"><title>${escH(repCur.title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@500;600&family=Roboto:wght@400;500;700"><style>${css}\nbody{background:#fff}.rep-paper{box-shadow:none;margin:0 auto}</style></head><body><div class="rep-paper">${reportPaper(repCur)}</div><script>addEventListener("load",()=>setTimeout(()=>print(),400))<\/script></body></html>`;
+  $("#rep-msg").textContent = await saveFile(fileBase(repCur) + ".html", doc);
+});
+function drawReports(keys, months) {
+  const el = $("#report-list"); if (!el) return;
+  $("#reports-scope").textContent = `Each report covers ${scopeName(keys).replace(/^All/, "all")}, ${periodName(months)}. Change the filters above to change it.`;
+  el.innerHTML = REPORTS.map(r => `<li><button class="rep-item" data-r="${r.id}"><span class="ri-name">${r.name}</span><span class="ri-desc">${r.desc}</span><span class="ri-open">Open</span></button></li>`).join("");
+  el.querySelectorAll(".rep-item").forEach(b => b.addEventListener("click", () => openReport(b.dataset.r)));
+}
+
+
+$("#pnl-card").addEventListener("click", () => goTo("pnl"));
+$("#pnl-card").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goTo("pnl") } });
+$("#pnl-open").addEventListener("click", () => openReport("pnl"));
+
+// ---------- Compare ----------
+const MN3 = m => { const [y, mo] = m.split("-").map(Number); return { y, mo } };
+const mAdd = (m, k) => { const { y, mo } = MN3(m); const t = y * 12 + mo - 1 + k; return Math.floor(t / 12) + "-" + String(t % 12 + 1).padStart(2, "0") };
+const wkLabel = d => "week of " + new Date(d + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+const weekRows = () => DATA.weekly || [];
+const WEEKS = () => [...new Set(weekRows().map(r => r.week))].sort();
+const addWeeks = (d, k) => { const t = new Date(d + "T12:00:00"); t.setDate(t.getDate() + 7 * k); return t.toISOString().slice(0, 10) };
+
+// a period is {kind: "month"|"week", keys: [...], label}
+function basePeriod(p) {
+  const last = MONTHS.at(-1);
+  if (p === "week") { const w = WEEKS().at(-1); return w ? { kind: "week", keys: [w], label: wkLabel(w) } : null }
+  if (p === "month") return { kind: "month", keys: [last], label: mLong(last) };
+  if (p === "quarter") { const { mo } = MN3(last); const end = mAdd(last, -(mo % 3)); const ks = [mAdd(end, -2), mAdd(end, -1), end];
+    return { kind: "month", keys: ks, label: `Q${Math.ceil(MN3(end).mo / 3)} ${MN3(end).y} (${MN[MN3(ks[0]).mo - 1]} to ${MN[MN3(end).mo - 1]})` } }
+  if (p === "year") { const ks = MONTHS.slice(-12); return { kind: "month", keys: ks, label: `${mLong(ks[0])} to ${mLong(ks.at(-1))}` } }
+}
+function shiftPeriod(per, mode) {
+  if (!per || mode === "same") return per;
+  if (per.kind === "week") { const k = mode === "before" ? -1 : -52; const w = addWeeks(per.keys[0], k); return { kind: "week", keys: [w], label: wkLabel(w) } }
+  const k = mode === "before" ? -per.keys.length : -12; const ks = per.keys.map(m => mAdd(m, k));
+  return { kind: "month", keys: ks, label: ks.length === 1 ? mLong(ks[0]) : ks.length === 3 && MN3(ks[2]).mo % 3 === 0 ? `Q${MN3(ks[2]).mo / 3} ${MN3(ks[2]).y} (${MN[MN3(ks[0]).mo - 1]} to ${MN[MN3(ks[2]).mo - 1]})` : `${mLong(ks[0])} to ${mLong(ks.at(-1))}` };
+}
+function groupKeys(g) {
+  if (g === "all") return DATA.locations.map(l => l.location_key);
+  const [t, v] = g.split(":");
+  if (t === "type") return DATA.locations.filter(l => l.specialty === v).map(l => l.location_key);
+  if (t === "region") return DATA.locations.filter(l => l.region === v).map(l => l.location_key);
+  return [+v];
+}
+function groupLabel(g) {
+  if (g === "all") return "All offices";
+  const [t, v] = g.split(":");
+  if (t === "type") return `${v} offices`;
+  if (t === "region") return `${v} region`;
+  return LOC[+v] ? LOC[+v].location_name : "Office";
+}
+const CMP_METRICS = [
+  { k: "production", label: "Gross production", sum: true, up: true, fmt: money },
+  { k: "collections", label: "Money collected", sum: true, up: true, fmt: money },
+  { k: "coll", label: "Collection rate", up: true, fmt: v => pct(v) },
+  { k: "newPts", label: "New patients", sum: true, up: true, fmt: v => Math.round(v).toLocaleString() },
+  { k: "visits", label: "Completed visits", sum: true, up: true, fmt: v => Math.round(v).toLocaleString() },
+  { k: "noshow", label: "No-show rate", up: false, fmt: v => pct(v) },
+  { k: "labor", label: "Staff labor % of production", up: false, fmt: v => pct(v) },
+  { k: "ot", label: "Overtime share of hours", up: false, fmt: v => pct(v) },
+  { k: "supply", label: "Supplies % of production", up: false, fmt: v => pct(v), monthly: true },
+  { k: "cpnp", label: "Cost per new patient", up: false, fmt: v => "$" + Math.round(v), monthly: true },
+  { k: "opex", label: "Operating expenses", sum: true, up: false, fmt: money, monthly: true },
+  { k: "margin", label: "Operating margin", up: true, fmt: v => pct(v), monthly: true },
+];
+function measure(keys, per) {
+  if (!per) return null;
+  if (per.kind === "week") {
+    const rows = weekRows().filter(r => keys.includes(r.location_key) && per.keys.includes(r.week));
+    if (!rows.length) return null;
+    const t = sumRows(rows), n = new Set(rows.map(r => r.location_key)).size;
+    return { n, production: t.gross_production || 0, collections: t.collections || 0, coll: t.collections / t.net_production, newPts: t.new_patients || 0,
+      visits: t.completed_visits || 0, noshow: t.no_shows / t.scheduled, labor: t.labor_cost / t.gross_production, ot: t.overtime_hours / t.labor_hours };
+  }
+  if (!per.keys.every(m => MONTHS.includes(m))) return null;
+  const rows = rowsFor(keys, per.keys); if (!rows.length) return null;
+  const t = sumRows(rows);
+  return { n: new Set(rows.map(r => r.location_key)).size, ...metrics(t), visits: t.completed_visits || 0 };
+}
+let cmp = null;
+function cmpDefaults() {
+  const { keys } = scope(), r = $("#f-region").value, sp = $("#f-spec").value;
+  const a = keys.length === 1 ? "office:" + keys[0] : sp !== "all" ? "type:" + sp : r !== "all" ? "region:" + r : "all";
+  return { a, b: keys.length === 1 ? "type:" + LOC[keys[0]].specialty : a, p: "month", m: keys.length === 1 ? "same" : "before", avg: true };
+}
+function groupOptions(sel) {
+  const types = uniq(DATA.locations.map(l => l.specialty)), regions = uniq(DATA.locations.map(l => l.region)).filter(r => !/TBD/.test(r));
+  const o = (v, t) => `<option value="${v}" ${v === sel ? "selected" : ""}>${t}</option>`;
+  return o("all", "All offices") + `<optgroup label="Office types">${types.map(t => o("type:" + t, t + " offices")).join("")}</optgroup>` +
+    (regions.length ? `<optgroup label="Regions">${regions.map(t => o("region:" + t, t)).join("")}</optgroup>` : "") +
+    `<optgroup label="Offices">${[...DATA.locations].sort((x, y) => x.location_name.localeCompare(y.location_name)).map(l => o("office:" + l.location_key, l.location_name)).join("")}</optgroup>`;
+}
+function compareResult(c) {
+  const pa = basePeriod(c.p), pb = shiftPeriod(pa, c.m);
+  const A = measure(groupKeys(c.a), pa), B = measure(groupKeys(c.b), pb);
+  const la = `${groupLabel(c.a)}, ${pa ? pa.label : ""}`, lb = `${groupLabel(c.b)}, ${pb ? pb.label : ""}`;
+  const avg = c.avg && A && B && (A.n !== B.n || A.n > 1);
+  const rows = CMP_METRICS.map(mt => {
+    if (!A || !B || (mt.monthly && pa.kind === "week")) return { ...mt, a: null, b: null };
+    let a = A[mt.k], b = B[mt.k];
+    if (mt.sum && avg) { a /= A.n; b /= B.n }
+    const ok = isFinite(a) && isFinite(b);
+    const d = !ok ? null : mt.sum || mt.k === "cpnp" ? (b ? (a - b) / Math.abs(b) : null) : a - b;
+    const good = d == null || Math.abs(d) < .0005 ? null : (d > 0) === mt.up;
+    return { ...mt, a: ok ? a : null, b: ok ? b : null, d, good };
+  });
+  return { pa, pb, A, B, la, lb, avg, rows };
+}
+const fmtDiff = r => r.d == null ? "" : r.sum || r.k === "cpnp" ? (r.d > 0 ? "+" : "") + (r.d * 100).toFixed(1) + "%" : (r.d > 0 ? "+" : "") + (r.d * 100).toFixed(1) + " pts";
+function drawCompare() {
+  const el = $("#cmp-out"); if (!el || !MONTHS.length) return;
+  if (!cmp) cmp = cmpDefaults();
+  $("#cmp-a").innerHTML = groupOptions(cmp.a); $("#cmp-b").innerHTML = groupOptions(cmp.b);
+  $("#cmp-p").value = cmp.p; $("#cmp-m").value = cmp.m; $("#cmp-avg").checked = cmp.avg;
+  const R = compareResult(cmp);
+  if (!R.A || !R.B) {
+    const why = !R.pa ? "Weekly numbers are still loading." : !R.A ? `There's no data for ${R.la}.` : `There's no data for ${R.lb}. The warehouse holds ${MONTHS.length} months, from ${mLong(MONTHS[0])}.`;
+    el.innerHTML = `<p class="cmp-empty">${why} Try a shorter period or compare with the period before.</p>`; $("#cmp-head").textContent = ""; return;
+  }
+  const movers = R.rows.filter(r => r.d != null && Math.abs(r.d) >= (r.sum || r.k === "cpnp" ? .03 : .005)).sort((x, y) => Math.abs(y.sum || y.k === "cpnp" ? y.d : y.d * 4) - Math.abs(x.sum || x.k === "cpnp" ? x.d : x.d * 4)).slice(0, 3);
+  $("#cmp-head").innerHTML = movers.length ? `<b>${escH(R.la)}</b> against <b>${escH(R.lb)}</b>: ` + movers.map(r => `${r.label.toLowerCase()} ${r.sum || r.k === "cpnp" ? (r.d > 0 ? "up " : "down ") + Math.abs(r.d * 100).toFixed(1) + "%" : (r.d > 0 ? "up " : "down ") + Math.abs(r.d * 100).toFixed(1) + " points"}`).join(", ") + "."
+    : `<b>${escH(R.la)}</b> and <b>${escH(R.lb)}</b> are close on every measure.`;
+  el.innerHTML = `<div class="cmp-key"><span><i class="ka"></i>${escH(R.la)}</span><span><i class="kb"></i>${escH(R.lb)}</span>${R.avg ? `<span class="muted">Dollar amounts and counts are averages per office (${R.A.n} vs ${R.B.n} offices).</span>` : ""}</div>
+    <table class="cmp-t"><thead><tr><th>Measure</th><th>${escH(groupLabel(cmp.a))}</th><th>${escH(groupLabel(cmp.b))}</th><th>Difference</th><th class="cmp-barh"></th></tr></thead><tbody>${
+    R.rows.map(r => { if (r.a == null) return `<tr class="cmp-na"><td>${r.label}</td><td colspan="4">${r.monthly && R.pa.kind === "week" ? "Tracked monthly, not weekly" : "Not available"}</td></tr>`;
+      const mx = Math.max(Math.abs(r.a), Math.abs(r.b)) || 1;
+      return `<tr><td>${r.label}</td><td>${r.fmt(r.a)}</td><td>${r.fmt(r.b)}</td><td class="${r.good == null ? "" : r.good ? "c-good" : "c-bad"}">${fmtDiff(r)}</td>
+        <td class="cmp-bars"><span class="ba" style="width:${(Math.abs(r.a) / mx * 100).toFixed(1)}%"></span><span class="bb" style="width:${(Math.abs(r.b) / mx * 100).toFixed(1)}%"></span></td></tr>` }).join("")}</tbody></table>`;
+}
+["#cmp-a", "#cmp-b", "#cmp-p", "#cmp-m", "#cmp-avg"].forEach(s => $(s).addEventListener("change", () => {
+  cmp = { a: $("#cmp-a").value, b: $("#cmp-b").value, p: $("#cmp-p").value, m: $("#cmp-m").value, avg: $("#cmp-avg").checked }; drawCompare() }));
+$("#cmp-swap").addEventListener("click", () => { if (!cmp) return; [cmp.a, cmp.b] = [cmp.b, cmp.a]; drawCompare() });
+$("#cmp-reset").addEventListener("click", () => { cmp = cmpDefaults(); drawCompare() });
+$("#cmp-open").addEventListener("click", () => openReport("compare"));
+document.querySelectorAll(".cmp-preset").forEach(b => b.addEventListener("click", () => {
+  const d = cmpDefaults(), k = b.dataset.p;
+  if (k === "mom") cmp = { ...d, b: d.a, p: "month", m: "before" };
+  if (k === "yoy") cmp = { ...d, b: d.a, p: "quarter", m: "year" };
+  if (k === "wow") cmp = { ...d, b: d.a, p: "week", m: "before" };
+  if (k === "peer") { const a = d.a.startsWith("office:") ? d.a : "office:" + DATA.locations[0].location_key; cmp = { ...d, a, b: "type:" + LOC[+a.split(":")[1]].specialty, p: "quarter", m: "same" } }
+  drawCompare();
+}));
+
+// ---------- Ask AI ----------
+const AI_RULES = `You are the analyst inside Practice Pulse, the reporting dashboard for Northwind Dental Group (Northwind), a group of 38 dental offices in a single region (general dentistry, orthodontics, endodontics, periodontics, oral surgery).
+IMPORTANT: everything in this dashboard is SAMPLE data generated for a demo, not real Northwind numbers. Say so briefly only if the user seems to treat it as real.
+
+How to answer:
+- Use the tools to get numbers. Never invent or estimate a figure; if the tools can't answer, say what's missing.
+- Start with a direct answer in 1-3 sentences that names the offices and the numbers.
+- Then a short "What to do" list: 2-4 specific, practical actions a dental group operator could take (staffing, scheduling, billing follow-up, vendor pricing, marketing budget, etc.), tied to the numbers.
+- Then "How to keep it on track": 1-3 habits or targets to watch, using the dashboard's targets below.
+- Keep it under about 250 words unless asked for more. Use plain language, short bullets, **bold** for key figures. No tables.
+
+Dashboard targets: collection rate good at 95.5% or more, needs action below 93%. Staff labor (hourly staff pay / gross production) good at 30% or less, needs action above 32%. Overtime share of hours good at 4% or less, action above 8%. No-show rate good at 8% or less, action above 10%. Operating margin (collections minus operating expenses, over collections) good at 12% or more, action below 8%. Orthodontic, endodontic and surgical offices naturally run lower staff labor than general offices.
+
+Warehouse (BigQuery, for the query_warehouse tool; always exclude location_key = 99, a test account):
+- marts.mart_location_monthly: location_key, location_name, region, specialty, pms_system, month (DATE, first of month), gross_production, net_production, collections, insurance_collections, completed_visits, no_shows, scheduled, new_patients, hygiene_production, labor_cost, overtime_cost, labor_hours, overtime_hours, doctor_comp, lab_fees, payroll_taxes_benefits, facility_costs, total_opex, supply_cost, inventory_on_hand, marketing_spend, leads, booked_from_marketing, operating_profit
+- marts.mart_location_weekly: location_key, week (DATE, Monday), gross_production, net_production, collections, completed_visits, no_shows, scheduled, new_patients, labor_cost, labor_hours, overtime_hours
+- marts.mart_opex_monthly: location_key, month, category, account_no, account_title, source, amount
+- marts.mart_marketing_channel_monthly: location_key, month, channel, spend, sessions, leads, booked
+- marts.mart_procedure_mix: location_key, month, procedure_category, procedures, gross_production
+- marts.mart_reconciliation: location_key, month, category, ops_source, ops_amount, gl_amount, variance, variance_pct
+- ref.dim_location: location_key, location_name, region, specialty, pms_system
+Write one SELECT (BigQuery SQL), aggregate in SQL, return at most 50 rows.`;
+
+function viewSnapshot() {
+  const { keys, months, prior, n } = scope();
+  const cur = metrics(sumRows(rowsFor(keys, months))), pri = prior ? metrics(sumRows(rowsFor(keys, prior))) : null;
+  const r = o => o && Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === "number" ? +v.toFixed(4) : v]));
+  return { offices: scopeName(keys), office_count: keys.length, period: periodName(months), months_in_period: n, data_through: mLong(MONTHS.at(-1)),
+    totals: r(cur), previous_period: r(pri), alerts: [...document.querySelectorAll("#alerts .alert p:first-child")].map(p => p.textContent.trim()).slice(0, 6) };
+}
+async function runSQL(sql, signal) {
+  if (typeof mcp === "undefined" || !mcp) throw new Error("Warehouse queries only work when the dashboard is open inside Claude with the BigQuery connector.");
+  const q = String(sql || "").trim().replace(/;\s*$/, "");
+  if (!/^(with|select)\b/i.test(q) || q.includes(";")) throw new Error("Only a single SELECT query is allowed.");
+  let res = await mcp.callTool(BQ, RUN, { projectId: PROJECT, query: q, timeoutMs: 60000 }, { cache: false, signal });
+  let p = res.payload; if (typeof p === "string") p = JSON.parse(p);
+  for (let i = 0; i < 4 && (p.jobComplete ?? p.job_complete) === false; i++) {
+    res = await mcp.callTool(BQ, POLL, { projectId: PROJECT, jobId: p.jobReference?.jobId || p.jobId, timeoutMs: 30000 }, { cache: false, signal });
+    p = res.payload; if (typeof p === "string") p = JSON.parse(p);
+  }
+  if (p.error) throw new Error(p.error.message || "Query failed");
+  const f = (p.schema && p.schema.fields || []).map(x => x.name);
+  const rows = (p.rows || []).slice(0, 50).map(r => Object.fromEntries(r.f.map((c, i) => [f[i], c.v])));
+  let out = { columns: f, rows, total_rows: +(p.totalRows || rows.length) };
+  while (JSON.stringify(out).length > 28000 && out.rows.length > 5) out.rows = out.rows.slice(0, Math.floor(out.rows.length / 2));
+  return out;
+}
+const AI_TOOLS = () => [
+  { name: "get_current_view", description: "Returns what the dashboard is showing now: selected offices, period, totals for the period and the period before (production, collections, coll = collection rate, labor = staff labor share, ot = overtime share, supply, cpnp = cost per new patient, noshow, margin, newPts, opex) and the current alerts.",
+    execute: () => { aiStatus("Reading the dashboard…"); return viewSnapshot() } },
+  { name: "get_office_metrics", description: "Returns one row per office for the selected period: name, specialty, region, production, collections, collection rate, staff labor %, overtime %, supplies %, no-show rate, new patients, cost per new patient, operating margin.",
+    execute: () => { aiStatus("Pulling office numbers…"); const { keys, months } = scope();
+      return keys.map(k => { const m = metrics(sumRows(rowsFor([k], months))), L = LOC[k]; return { office: L.location_name, specialty: L.specialty, region: L.region,
+        production: Math.round(m.production), collections: Math.round(m.collections), coll: +m.coll.toFixed(4), labor: +m.labor.toFixed(4), ot: +m.ot.toFixed(4),
+        supply: +m.supply.toFixed(4), noshow: +m.noshow.toFixed(4), newPts: m.newPts, cpnp: Math.round(m.cpnp), margin: +m.margin.toFixed(4) } }) } },
+  { name: "get_pnl", description: "Returns the profit and loss statement for the selected offices and period, with each expense category, and the same for the period before when available.",
+    execute: () => { aiStatus("Reading the P&L…"); const { keys, months, prior } = scope(); const { rows } = pnlRows(keys, months, prior);
+      return rows.filter(r => !r.section).map(r => ({ line: r.label, amount: r.ratio ? +r.cur.toFixed(4) : Math.round(r.cur), previous: r.pri == null ? null : r.ratio ? +r.pri.toFixed(4) : Math.round(r.pri) })) } },
+  { name: "compare", description: "Compares two groups and periods. a and b are 'all', 'type:<specialty>' (General, Orthodontics, Endodontics, Periodontics, Oral Surgery), or 'office:<office name>'. period is week, month, quarter or year (last 12 months); against is same, before or year (same period a year earlier) and applies to b. Returns each measure for both and the difference; dollar amounts are per-office averages.",
+    inputSchema: { type: "object", properties: { a: { type: "string" }, b: { type: "string" }, period: { type: "string", enum: ["week", "month", "quarter", "year"] }, against: { type: "string", enum: ["same", "before", "year"] } }, required: ["a", "b", "period", "against"] },
+    execute: inp => { aiStatus("Running a comparison…");
+      const g = s => { s = String(s || "all"); if (s.startsWith("office:")) { const nm = s.slice(7).trim().toLowerCase(); const L = DATA.locations.find(l => l.location_name.toLowerCase() === nm) || DATA.locations.find(l => l.location_name.toLowerCase().includes(nm)); if (!L) throw new Error("No office named " + s.slice(7)); return "office:" + L.location_key } return s };
+      const R = compareResult({ a: g(inp.a), b: g(inp.b), p: String(inp.period || "month"), m: String(inp.against || "before"), avg: true });
+      if (!R.A || !R.B) throw new Error("No data for that comparison (the warehouse covers " + mLong(MONTHS[0]) + " to " + mLong(MONTHS.at(-1)) + ").");
+      return { a: R.la, b: R.lb, per_office_average: R.avg, measures: R.rows.filter(r => r.a != null).map(r => ({ measure: r.label, a: +r.a.toFixed(4), b: +r.b.toFixed(4), difference: fmtDiff(r) })) } } },
+  { name: "query_warehouse", description: "Runs one read-only BigQuery SELECT against the Northwind warehouse (tables listed in the instructions) and returns up to 50 rows. Use for anything the other tools don't cover, such as month-by-month trends, specific expense accounts or marketing channels.",
+    inputSchema: { type: "object", properties: { sql: { type: "string", description: "One BigQuery SELECT statement" } }, required: ["sql"] },
+    execute: async (inp, ctx) => { aiStatus("Querying the warehouse…"); return runSQL(inp.sql, ctx && ctx.signal) } },
+];
+const mdLite = s => escH(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n{2,}/).map(block => {
+  const lines = block.split("\n");
+  if (lines.every(l => /^\s*([-*•]|\d+\.)\s+/.test(l))) return `<ul>${lines.map(l => `<li>${l.replace(/^\s*([-*•]|\d+\.)\s+/, "")}</li>`).join("")}</ul>`;
+  return lines.map(l => /^#{1,4}\s+/.test(l) ? `<h4>${l.replace(/^#{1,4}\s+/, "")}</h4>` : /^\s*([-*•]|\d+\.)\s+/.test(l) ? `<ul><li>${l.replace(/^\s*([-*•]|\d+\.)\s+/, "")}</li></ul>` : `<p>${l}</p>`).join("");
+}).join("");
+let aiTurns = [], aiCtl = null, sampleFn, aiBubble = null;
+const aiStatus = t => { if (aiBubble && aiBubble.classList.contains("thinking")) aiBubble.querySelector(".ai-txt").textContent = t };
+const AI_ERR = { not_granted: "Claude isn't allowed for this page. Allow it from the page's permissions to use Ask AI.", sampling_disabled: "Claude isn't available for this account.", rate_limited: "Too many questions at once or your usage limit was reached. Try again in a bit.",
+  session_expired: "Sign in to Claude again, then ask again.", refused: "Claude couldn't answer that one. Try asking it differently.", empty_completion: "No answer came back. Try a simpler question.", prompt_too_large: "That conversation got too long. Start a new chat.", tools_unavailable: "This view can't look up data for answers." };
+function aiAdd(role, html, cls = "") {
+  const d = document.createElement("div"); d.className = `ai-msg ${role} ${cls}`; d.innerHTML = `<div class="ai-txt">${html}</div>`;
+  $("#ai-log").appendChild(d); d.scrollIntoView({ block: "end", behavior: "smooth" }); return d;
+}
+async function aiAsk(q) {
+  q = q.trim(); if (!q || aiCtl) return;
+  if (sampleFn === undefined) sampleFn = window.claude && typeof claude.use === "function" ? await claude.use("sample").catch(() => null) : null;
+  $("#ai-intro").hidden = true; aiAdd("you", escH(q)); $("#ai-q").value = "";
+  if (!sampleFn) { aiAdd("bot", "Ask AI only works when this dashboard is open inside Claude.", "err"); return }
+  let lim = null; try { lim = await sampleFn.limits() } catch (e) {}
+  aiTurns.push({ role: "user", content: q });
+  aiBubble = aiAdd("bot", "Thinking…", "thinking");
+  aiCtl = new AbortController(); $("#ai-send").hidden = true; $("#ai-stop").hidden = false;
+  const lead = { role: "user", content: AI_RULES + "\n\nCurrent dashboard view (JSON):\n" + JSON.stringify(viewSnapshot()) + "\n\nThe conversation follows." };
+  try {
+    const opts = { signal: aiCtl.signal, cache: false, onText: ({ text }) => { aiBubble.classList.remove("thinking"); aiBubble.querySelector(".ai-txt").innerHTML = mdLite(text) } };
+    if (lim && lim.tools) { opts.tools = AI_TOOLS(); delete opts.cache }
+    const { text, truncated } = await sampleFn([lead, ...aiTurns.slice(-12)], opts);
+    aiBubble.classList.remove("thinking"); aiBubble.querySelector(".ai-txt").innerHTML = mdLite(text) + (truncated ? `<p class="ai-note">The answer was cut short. Ask for less at a time.</p>` : "");
+    aiTurns.push({ role: "assistant", content: text });
+  } catch (e) {
+    aiBubble.classList.remove("thinking");
+    if (e && e.code === "cancelled") { aiBubble.querySelector(".ai-txt").innerHTML = (e.text ? mdLite(e.text) : "") + `<p class="ai-note">Stopped.</p>`; if (e.text) aiTurns.push({ role: "assistant", content: e.text }) }
+    else { aiBubble.classList.add("err"); aiBubble.querySelector(".ai-txt").innerHTML = (e && e.text && e.code !== "refused" ? mdLite(e.text) : "") + `<p class="ai-note">${AI_ERR[e && e.code] || "Something went wrong reaching Claude. Try again."}</p>` }
+  } finally { aiCtl = null; aiBubble = null; $("#ai-send").hidden = false; $("#ai-stop").hidden = true }
+}
+$("#ai-form").addEventListener("submit", e => { e.preventDefault(); aiAsk($("#ai-q").value) });
+$("#ai-q").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aiAsk($("#ai-q").value) } });
+$("#ai-stop").addEventListener("click", () => aiCtl && aiCtl.abort());
+$("#ai-new").addEventListener("click", () => { if (aiCtl) aiCtl.abort(); aiTurns = []; $("#ai-log").innerHTML = ""; $("#ai-intro").hidden = false });
+document.querySelectorAll(".ai-chip").forEach(b => b.addEventListener("click", () => aiAsk(b.textContent)));
+function drawAiScope() { const el = $("#ai-scope"); if (!el || !MONTHS.length) return; const { keys, months } = scope(); el.textContent = `Answers start from what's selected above: ${scopeName(keys).replace(/^All/, "all")}, ${periodName(months)}. You can also ask about any office or period.` }
+
+let pulseDrawn = false;
+function drawPulse(keys, months) {
+  const el = $("#pulse"); if (!el) return;
+  const vals = MONTHS.map(m => sumRows(rowsFor(keys, [m])).collections || 0);
+  if (vals.length < 2) { el.innerHTML = ""; return }
+  const W = 1200, H = 92, lo = Math.min(...vals) * .92, hi = Math.max(...vals), sp = hi - lo || 1;
+  const P = vals.map((v, i) => [i * W / (vals.length - 1), H - 8 - (v - lo) / sp * (H - 22)]);
+  const line = a => a.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join("");
+  const i0 = Math.max(0, MONTHS.indexOf(months[0])), sel = P.slice(i0), e = P.at(-1);
+  const area = line(sel) + `L${W} ${H}L${sel[0][0].toFixed(1)} ${H}Z`;
+  const animate = !pulseDrawn && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  pulseDrawn = true;
+  const cols = P.map((q, i) => `<rect class="ph" data-i="${i}" x="${(i - .5) * W / (P.length - 1)}" y="0" width="${W / (P.length - 1)}" height="${H}" fill="transparent"/>`).join("");
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Money collected each month, ${mLong(MONTHS[0])} to ${mLong(MONTHS.at(-1))}">
+    <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c6ae6" stop-opacity=".32"/><stop offset="1" stop-color="#7c6ae6" stop-opacity="0"/></linearGradient>
+    <clipPath id="pclip"><rect x="0" y="-20" width="${animate ? 0 : W}" height="${H + 40}">${animate ? `<animate attributeName="width" from="0" to="${W}" dur="1.5s" fill="freeze" calcMode="spline" keySplines=".2 .7 .3 1" keyTimes="0;1"/>` : ""}</rect></clipPath></defs>
+    <g clip-path="url(#pclip)">
+      <path d="${area}" fill="url(#pg)"/>
+      <path d="${line(P.slice(0, i0 + 1))}" fill="none" stroke="rgb(255 255 255 / .35)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-dasharray="4 5"/>
+      <path d="${line(sel)}" fill="none" stroke="#7c6ae6" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+    </g>${cols}</svg>
+    <span class="pdot" style="left:100%;top:${e[1]}px;${animate ? "opacity:0;animation:pin .3s 1.4s forwards" : ""}"></span>`;
+  el.querySelectorAll(".ph").forEach(r => { r.addEventListener("mousemove", ev => { const i = +r.dataset.i;
+    showTip(ev, `<b>${mLong(MONTHS[i])}</b><br>${money(vals[i])} collected`) }); r.addEventListener("mouseleave", hideTip) });
+  $("#pulse-cap").innerHTML = `<span>${mLabel(MONTHS[0])}</span><span>Money collected each month. The solid stretch is the period you picked.</span><span>${mLabel(MONTHS.at(-1))}</span>`;
+}
+
+document.querySelectorAll(".period-mirror").forEach(s => {
+  s.innerHTML = $("#f-period").innerHTML;
+  s.addEventListener("change", () => { $("#f-period").value = s.value; render() });
+});
+function render() {
+  document.querySelectorAll(".period-mirror").forEach(s => s.value = $("#f-period").value);
+  const { keys, months, prior, n } = scope();
+  const cur = metrics(sumRows(rowsFor(keys, months)));
+  const pri = prior ? metrics(sumRows(rowsFor(keys, prior))) : null;
+  const who = keys.length === 1 ? `<b>${LOC[keys[0]].location_name}</b>` : `Northwind's <b>${keys.length} offices</b>`;
+
+  $("#summary").innerHTML = `${n === 1 ? `In ${mLong(months[0])}` : `Over the last ${n} months (${mLong(months[0])} to ${mLong(months.at(-1))})`}, ${who}
+    did <b>${money(cur.production)}</b> of dental work, collected <b>${money(cur.collections)}</b>,
+    and kept <b>${money(cur.collections - cur.opex)}</b> after expenses, a <b>${pct(cur.margin)}</b> operating margin.`;
+
+  const mon = months.map(m => metrics(sumRows(rowsFor(keys, [m]))));
+  drawPulse(keys, months);
+  const T = [
+    { k: "production", go: ["offices", "production"], hint: "See production by office", label: "Gross production", val: money(cur.production), up: true, rel: true, means: "Fee value of completed work" },
+    { k: "coll", go: ["offices", "coll"], hint: "See collection rate by office", label: "Collection rate", val: pct(cur.coll), up: true, means: "Share of what's owed that was collected" },
+    { k: "labor", go: ["offices", "labor"], hint: "See staff labor by office", label: "Staff labor %", val: pct(cur.labor), up: false, means: "Hourly staff pay as a share of production" },
+    { k: "cpnp", go: ["marketing"], hint: "See cost by ad channel", label: "Cost per new patient", val: "$" + Math.round(cur.cpnp), up: false, rel: true, means: "Ad spend for each new patient seen" },
+    { k: "noshow", go: ["offices", "noshow"], hint: "See no-shows by office", label: "No-show rate", val: pct(cur.noshow), up: false, means: "Appointments where the patient didn't come" },
+    { k: "margin", go: ["expenses"], hint: "See where the money goes", label: "Operating margin", val: pct(cur.margin), up: true, means: "Kept from collections after all expenses" },
+  ];
+  $("#metrics").innerHTML = T.map(t => {
+    let ch = `<span class="change same">No earlier period to compare</span>`;
+    if (pri && isFinite(pri[t.k])) {
+      const d = t.rel ? (cur[t.k] - pri[t.k]) / pri[t.k] : cur[t.k] - pri[t.k];
+      const size = Math.abs(d * 100).toFixed(1) + (t.rel ? "%" : " points");
+      const flat = Math.abs(d) < 0.002;
+      const cls = flat ? "same" : (d > 0) === t.up ? "better" : "worse";
+      ch = `<span class="change ${cls}">${flat ? "Steady" : (d > 0 ? "Up " : "Down ") + size} vs ${n === 1 ? "the month before" : `the ${n} months before`}</span>`;
+    }
+    const st = RULES[t.k] ? RULES[t.k](cur[t.k]) : "";
+    return `<button type="button" class="card metric ${st ? "s-" + st : ""}" data-go="${t.go.join(",")}" title="${t.means}"><span class="label">${t.label}${st && st !== "good" ? `<span class="status ${st}">${STATUS_TXT[st]}</span>` : ""}</span>${spark(mon.map(x => x[t.k]))}<span class="value num">${t.val}</span>${ch}
+      <span class="go">${t.hint}</span></button>`;
+  }).join("");
+  $("#metrics").querySelectorAll("button.metric").forEach(b => b.addEventListener("click", () => { const [tab, sort] = b.dataset.go.split(","); goTo(tab, sort) }));
+  $("#reset").hidden = $("#f-region").value === "all" && $("#f-spec").value === "all" && $("#f-loc").value === "all";
+
+  const per = keys.map(k => ({ k, ...metrics(sumRows(rowsFor([k], months))) })).filter(p => p.production > 0);
+  const bench = {};
+  uniq(per.map(p => LOC[p.k].specialty)).forEach(sp => bench[sp] = metrics(sumRows(rowsFor(DATA.locations.filter(l => l.specialty === sp).map(l => l.location_key), months))));
+
+  const A = [];
+  per.forEach(p => {
+    const L = LOC[p.k], b = bench[L.specialty], peers = SPEC[L.specialty] + " offices";
+    const otIssue = p.ot > 0.06 && p.labor > b.labor * 1.08, collIssue = p.coll < 0.93;
+    if (otIssue) A.push(["act", `<b>${L.location_name}</b> is paying ${pct(p.ot)} of staff hours as overtime. Staff pay is ${pct(p.labor)} of production, versus ${pct(b.labor)} at other ${peers}.`, "From UKG timecards and practice management", p.k]);
+    if (collIssue) A.push(["act", `<b>${L.location_name}</b> is collecting ${pct(p.coll)} of what it's owed, versus ${pct(b.coll)} at other ${peers}. That's about ${money((b.coll - p.coll) * p.net)} not collected.`, "From the practice management ledger", p.k]);
+    if (p.supply > b.supply * 1.12) A.push(["watch", `<b>${L.location_name}</b> spends ${pct(p.supply)} of production on supplies, versus ${pct(b.supply)} at other ${peers}. Worth checking orders and waste.`, "From inventory and practice management", p.k]);
+    if (p.margin < 0.08 && !otIssue && !collIssue) A.push(["watch", `<b>${L.location_name}</b> is keeping ${pct(p.margin)} of collections after expenses.`, "From all five systems", p.k]);
+  });
+  const chAll = channelTotals(keys, months);
+  const paid = chAll.filter(c => c.spend > 0 && c.booked > 0).sort((a, b) => b.cpb - a.cpb);
+  if (paid.length > 1 && paid[0].cpb > 2 * paid.at(-1).cpb)
+    A.push(["watch", `<b>${paid[0].channel}</b> ads cost $${Math.round(paid[0].cpb)} to book one appointment, ${(paid[0].cpb / paid.at(-1).cpb).toFixed(1)} times more than ${paid.at(-1).channel} ($${Math.round(paid.at(-1).cpb)}).`, "From ad platforms and website bookings", "marketing"]);
+  A.sort((a, b) => (a[0] === "act" ? 0 : 1) - (b[0] === "act" ? 0 : 1));
+  const single = keys.length === 1;
+  $("#alerts").innerHTML = A.length ? A.slice(0, 6).map(([s, t, w, a]) => `<li class="alert"><span><span class="status ${s}">${STATUS_TXT[s]}</span></span><div><p>${t}</p><p class="why">${w}</p></div>${
+      a === "marketing" ? `<button class="linkbtn" data-tab="marketing">Compare channels</button>` : a != null && !single ? `<button class="linkbtn" data-k="${a}">View ${LOC[a].location_name}</button>` : a != null ? `<button class="linkbtn" data-tab="offices">See the scorecard</button>` : ""}</li>`).join("")
+    : `<li class="alert"><span><span class="status good">On track</span></span><div><p>Nothing is outside target for this selection.</p></div></li>`;
+
+  $("#alerts").querySelectorAll(".linkbtn").forEach(b => b.addEventListener("click", () => b.dataset.k ? focusOffice(+b.dataset.k) : goTo(b.dataset.tab)));
+  drawTrend(keys, months);
+  drawExpenses(keys, months, cur.collections || 1);
+  drawLabor(per, bench);
+  drawTable(per);
+  drawPnl(keys, months, prior, n);
+  drawPnlCard(keys, months);
+  drawReports(keys, months);
+  drawCompare();
+  drawAiScope();
+  drawMkt(chAll);
+  drawMix(keys, months);
+  drawChecks(keys, months);
+}
+
+function niceMax(v) { const p = 10 ** Math.floor(Math.log10(v || 1)), n = v / p; return ([1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(s => n <= s) || 10) * p }
+
+function drawTrend(keys, months) {
+  const W = 1040, H = 330, L = 64, R = 16, T = 14, B = 30;
+  const pts = months.map(m => { const t = sumRows(rowsFor(keys, [m])); return { m, p: t.gross_production || 0, c: t.collections || 0 } });
+  const max = niceMax(Math.max(...pts.map(d => d.p)));
+  const x = i => L + (pts.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (pts.length - 1));
+  const y = v => T + (H - T - B) * (1 - v / max);
+  let g = "";
+  for (let i = 0; i <= 4; i++) { const v = max * i / 4; g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 10}" y="${y(v) + 4}" text-anchor="end">${money(v)}</text>` }
+  const step = Math.ceil(pts.length / 7);
+  pts.forEach((d, i) => { if (i % step === 0 || (i === pts.length - 1 && i % step > step / 2)) g += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${mLabel(d.m)}</text>` });
+  const path = k => pts.map((d, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(d[k]).toFixed(1)).join("");
+  const last = pts.length - 1;
+  $("#trend").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly production and collections">${g}
+    <path d="${path("p")}L${x(last)} ${y(0)}L${x(0)} ${y(0)}Z" fill="var(--bar)" fill-opacity=".08"/>
+    <path d="${path("p")}" fill="none" stroke="var(--bar)" stroke-width="2.5"/><path d="${path("c")}" fill="none" stroke="var(--teal)" stroke-width="2.5"/>
+    <circle cx="${x(last)}" cy="${y(pts[last].p)}" r="4.5" fill="var(--bar)" stroke="var(--surface)" stroke-width="2"/>
+    <circle cx="${x(last)}" cy="${y(pts[last].c)}" r="4.5" fill="var(--teal)" stroke="var(--surface)" stroke-width="2"/>
+    <line id="xh" y1="${T}" y2="${H - B}" stroke="var(--ink-3)" stroke-dasharray="3 3" visibility="hidden"/>
+    <rect id="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"/></svg>`;
+  const svg = $("#trend svg"), xh = $("#xh");
+  $("#hit").addEventListener("mousemove", e => {
+    const r = svg.getBoundingClientRect(), sx = (e.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(last, Math.round((sx - L) / ((W - L - R) / Math.max(1, last)))));
+    xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible");
+    showTip(e, `<b>${mLong(pts[i].m)}</b><br>Work done ${money(pts[i].p)}<br>Collected ${money(pts[i].c)}`);
+  });
+  $("#hit").addEventListener("mouseleave", () => { xh.setAttribute("visibility", "hidden"); hideTip() });
+}
+
+function hbars(el, items, { fmt, max, ticks = 4, W = 620 }) {
+  W = Math.round(el.clientWidth) || W;
+  const rowH = 26, L = Math.min(190, Math.round(W * .3)), R = 56, H = items.length * rowH + 26;
+  const mx = max || niceMax(Math.max(...items.map(d => d.v)));
+  const x = v => L + (W - L - R) * v / mx;
+  let s = "";
+  for (let i = 0; i <= ticks; i++) { const v = mx * i / ticks; s += `<line x1="${x(v)}" x2="${x(v)}" y1="0" y2="${H - 22}" stroke="var(--grid)"/><text x="${x(v)}" y="${H - 6}" text-anchor="middle">${fmt(v)}</text>` }
+  items.forEach((d, i) => {
+    const yy = i * rowH + 5, bw = Math.max(3, x(d.v) - L);
+    s += `<text x="${L - 10}" y="${yy + 14}" text-anchor="end" style="fill:var(--ink-2);font-size:13px">${d.label}</text>
+      <path d="M${L} ${yy + 4}h${bw - 4}a4 4 0 0 1 4 4v6a4 4 0 0 1 -4 4h-${bw - 4}z" fill="${d.color || "var(--bar)"}"/>
+      <text x="${L + bw + 8}" y="${yy + 15}" style="fill:var(--ink);font-weight:600;font-size:12.5px">${fmt(d.v)}</text>
+      <rect x="0" y="${yy}" width="${W}" height="${rowH}" fill="transparent" data-i="${i}" class="bh${d.k != null ? " go" : ""}"/>`;
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto" role="img">${s}</svg>`;
+  el.querySelectorAll(".bh").forEach(r => { const d = items[+r.dataset.i];
+    r.addEventListener("mousemove", e => showTip(e, d.tip + (d.k != null ? `<br><span style="opacity:.75">Click to view this office</span>` : "")));
+    r.addEventListener("mouseleave", hideTip); if (d.k != null) r.addEventListener("click", () => focusOffice(d.k)) });
+}
+
+let pickedCat = null;
+function drawExpenses(keys, months, collections) {
+  const acct = {}, cat = {};
+  DATA.opex.forEach(([k, m, i, amt]) => { if (!keys.includes(k) || !months.includes(m)) return;
+    acct[i] = (acct[i] || 0) + amt; const c = DATA.opex_accounts[i][2]; cat[c] = (cat[c] || 0) + amt });
+  const total = Object.values(cat).reduce((a, b) => a + b, 0);
+  $("#opex-sub").innerHTML = `<span class="big-total num">${money(total)}</span> in operating expenses, ${pct(total / collections)} of the money collected.`;
+  const cats = Object.entries(cat).sort((a, b) => b[1] - a[1]);
+  if (!pickedCat || !cat[pickedCat]) pickedCat = cats[0] && cats[0][0];
+  const max = cats.length ? cats[0][1] : 1;
+  $("#cats").innerHTML = cats.map(([c, v]) => `<button class="cat" data-c="${c}" aria-pressed="${c === pickedCat}"><span class="nm">${c}</span>
+    <span class="track"><span class="fill" style="width:${(v / max * 100).toFixed(1)}%"></span></span><span class="v num">${pct(v / collections)} &nbsp;${money(v)}</span></button>`).join("");
+  $("#cats").querySelectorAll(".cat").forEach(b => b.addEventListener("click", () => { pickedCat = b.dataset.c; drawExpenses(keys, months, collections) }));
+  const lines = Object.entries(acct).map(([i, v]) => [DATA.opex_accounts[i], v]).filter(([a]) => a[2] === pickedCat).sort((a, b) => b[1] - a[1]);
+  $("#lines-title").textContent = pickedCat || "";
+  $("#lines thead").innerHTML = "<tr><th>Line item</th><th>Amount</th><th>Share of collections</th></tr>";
+  $("#lines tbody").innerHTML = lines.map(([a, v]) => `<tr><td>${a[1]}<small>GL ${a[0]}, from ${a[3]}</small></td><td>${money(v)}</td><td>${pct(v / collections, 2)}</td></tr>`).join("");
+}
+
+let laborAll = false;
+function drawLabor(per, bench) {
+  const items = per.map(p => {
+    const L = LOC[p.k], over = p.labor > bench[L.specialty].labor * 1.08;
+    return { k: p.k, label: L.location_name, v: p.labor, color: over ? "var(--watch-mark)" : "var(--bar)",
+      tip: `<b>${L.location_name}</b><br>Staff pay ${pct(p.labor)} of production<br>Overtime ${pct(p.ot)} of hours<br>Average for ${SPEC[L.specialty]} offices ${pct(bench[L.specialty].labor)}` };
+  }).sort((a, b) => b.v - a.v);
+  const shown = laborAll || items.length <= 12 ? items : items.slice(0, 12);
+  hbars($("#labor"), shown, { fmt: v => pct(v, 0), W: 900, ticks: 3 });
+  if (items.length > 12) {
+    $("#labor").insertAdjacentHTML("beforeend", `<button class="linkbtn" id="labor-more">${laborAll ? "Show the top 12" : `Show all ${items.length} offices`}</button>`);
+    $("#labor-more").addEventListener("click", () => { laborAll = !laborAll; drawLabor(per, bench) });
+  }
+}
+
+function channelTotals(keys, months) {
+  const m = {};
+  DATA.channels.filter(r => keys.includes(r.location_key) && months.includes(r.month)).forEach(r => {
+    const o = m[r.channel] ||= { channel: r.channel, spend: 0, leads: 0, booked: 0 }; o.spend += r.spend; o.leads += r.leads; o.booked += r.booked });
+  return Object.values(m).map(o => ({ ...o, cpb: o.booked ? o.spend / o.booked : 0 }));
+}
+function drawMkt(ch) {
+  const items = ch.filter(c => c.spend > 0 && c.booked > 0).sort((a, b) => b.cpb - a.cpb).map(c => ({ label: c.channel, v: c.cpb,
+    tip: `<b>${c.channel}</b><br>Spent ${money(c.spend)}<br>${c.leads.toLocaleString()} website leads<br>${c.booked.toLocaleString()} appointments booked` }));
+  hbars($("#mkt"), items, { fmt: v => "$" + Math.round(v) });
+  const free = ch.filter(c => c.spend === 0 && c.booked > 0).map(c => `${c.channel.toLowerCase()} (${c.booked.toLocaleString()})`);
+  if (free.length) $("#mkt").insertAdjacentHTML("beforeend", `<p class="muted" style="margin-top:10px;font-size:.88rem">Also booked at no ad cost: ${free.join(" and ")}.</p>`);
+}
+function drawMix(keys, months) {
+  const t = {}; DATA.mix.filter(r => keys.includes(r.location_key) && months.includes(r.month)).forEach(r => t[r.cat] = (t[r.cat] || 0) + r.prod);
+  const total = Object.values(t).reduce((a, b) => a + b, 0) || 1;
+  const items = Object.entries(t).sort((a, b) => b[1] - a[1]).map(([c, v]) => ({ label: c, v: v / total, color: "var(--bar-2)", tip: `<b>${c}</b><br>${money(v)} of work<br>${pct(v / total)} of production` }));
+  const mx = Math.ceil(Math.max(...items.map(d => d.v), .05) / .05) * .05;
+  hbars($("#mix"), items, { fmt: v => pct(v, 0), max: mx, ticks: Math.round(mx / .05) });
+}
+function drawChecks(keys, months) {
+  const t = {};
+  DATA.recon.filter(r => keys.includes(r.location_key) && months.includes(r.month)).forEach(r => {
+    const o = t[r.category] ||= { src: r.ops_source, ops: 0, gl: 0 }; o.ops += r.ops_amount || 0; o.gl += r.gl_amount || 0 });
+  $("#checks").innerHTML = Object.entries(t).map(([c, o]) => {
+    const v = (o.gl - o.ops) / (o.ops || 1), st = Math.abs(v) > 0.02 ? "act" : Math.abs(v) > 0.005 ? "watch" : "good";
+    return `<div class="check"><span class="muted" style="font-weight:600">${c}</span><b class="num">${money(o.gl)} in Sage Intacct</b>
+      <span class="muted num">${money(o.ops)} in ${o.src}</span><span><span class="status ${st}">${st === "good" ? "Matches" : "Off by"} ${Math.abs(v * 100).toFixed(2)}%</span></span></div>`;
+  }).join("") + `<div class="check"><span class="muted" style="font-weight:600">Unrecognized codes</span><b>${DATA.unmapped}</b>
+    <span class="muted">Offices, procedure codes, accounts, job codes or ad sources the system couldn't match</span>
+    <span><span class="status ${DATA.unmapped ? "watch" : "good"}">${DATA.unmapped ? "Needs mapping" : "Everything matched"}</span></span></div>`;
+}
+$("#sources").innerHTML = DATA.sources.map(s => `<div class="source"><b>${s.source}</b><span class="muted" style="font-size:.86rem">${s.detail.replace(" · ", ", ")}</span>
+  <span class="num" style="font-size:.86rem">${s.n.toLocaleString()} sample rows</span></div>`).join("");
+
+let sortKey = "production", sortDir = -1;
+const COLS = [["Office", null], ["Production", "production", money], ["Collection rate", "coll", v => pct(v)], ["Staff labor", "labor", v => pct(v)],
+  ["Overtime", "ot", v => pct(v)], ["Supplies", "supply", v => pct(v)], ["No-shows", "noshow", v => pct(v)], ["New patients", "newPts", v => Math.round(v).toLocaleString()],
+  ["Cost per new patient", "cpnp", v => "$" + Math.round(v)], ["Operating margin", "margin", v => pct(v)]];
+function drawTable(per) {
+  $("#offices-table thead").innerHTML = "<tr>" + COLS.map(([lab, k]) => { const key = k || "name", on = key === sortKey;
+    return `<th class="sortable" tabindex="0" data-k="${key}" ${on ? `aria-sort="${sortDir < 0 ? "descending" : "ascending"}"` : ""}>${lab}${on ? (sortDir < 0 ? " ↓" : " ↑") : ""}</th>` }).join("") + "</tr>";
+  const rows = per.map(p => ({ ...p, name: LOC[p.k].location_name })).sort((a, b) => sortKey === "name" ? sortDir * a.name.localeCompare(b.name) : sortDir * (a[sortKey] - b[sortKey]));
+  $("#offices-table tbody").innerHTML = rows.map(r => "<tr>" + COLS.map(([, k, f]) => {
+    if (!k) return `<td><button class="rowlink" data-k="${r.k}" title="View this office">${r.name}</button><small>${LOC[r.k].specialty}, ${PMS[LOC[r.k].pms_system]}</small></td>`;
+    const st = RULES[k] ? RULES[k](r[k]) : null;
+    return `<td class="${st && st !== "good" ? "f-" + st : ""}">${f(r[k])}</td>`;
+  }).join("") + "</tr>").join("");
+  $("#offices-table tbody").querySelectorAll(".rowlink").forEach(b => b.addEventListener("click", () => focusOffice(+b.dataset.k)));
+  $("#offices-table thead").querySelectorAll("th").forEach(th => {
+    const go = () => { const k = th.dataset.k; sortDir = k === sortKey ? -sortDir : -1; sortKey = k; render() };
+    th.addEventListener("click", go); th.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go() } });
+  });
+}
+
+render();
+</script>

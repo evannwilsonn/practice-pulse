@@ -1,0 +1,9 @@
+utm_source,utm_medium,channel,is_paid
+google,cpc,Google Ads,true
+bing,cpc,Google Ads,true
+facebook,paid_social,Meta,true
+instagram,paid_social,Meta,true
+google,organic,SEO / Organic,false
+bing,organic,SEO / Organic,false
+referral,referral,Referral,false
+(direct),(none),Direct,false

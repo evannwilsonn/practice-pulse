@@ -1,0 +1,25 @@
+# Production: BigQuery. Sign in once with `gcloud auth application-default login`
+# (or point GOOGLE_APPLICATION_CREDENTIALS at a service-account key), then:
+#   dbt build --profiles-dir .
+# Local test against Postgres:  dbt build --profiles-dir . --target pg
+practice_pulse:
+  target: bigquery
+  outputs:
+    bigquery:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT') }}"
+      dataset: practice_pulse      # default only; models land in ref / staging / marts
+      location: US
+      threads: 8
+      job_execution_timeout_seconds: 600
+    pg:
+      type: postgres
+      host: "{{ env_var('PG_HOST', 'localhost') }}"
+      user: "{{ env_var('PG_USER', 'postgres') }}"
+      password: "{{ env_var('PG_PASSWORD', '') }}"
+      port: "{{ env_var('PG_PORT', '5432') | as_number }}"
+      dbname: "{{ env_var('PG_DATABASE', 'practice_pulse') }}"
+      schema: public
+      sslmode: "{{ env_var('PG_SSLMODE', 'disable') }}"
+      threads: 4

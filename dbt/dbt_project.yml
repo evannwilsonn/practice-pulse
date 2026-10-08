@@ -1,0 +1,39 @@
+# Northwind Practice Pulse: dbt project. Production target: BigQuery. Also runs on Postgres for local tests.
+# Same logic as models/*.sql (the DuckDB preview), one model per file.
+name: practice_pulse
+version: "1.0.0"
+config-version: 2
+profile: practice_pulse
+
+model-paths: ["models"]
+seed-paths: ["../seeds"]        # the same mapping tables the DuckDB preview uses
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+seeds:
+  practice_pulse:
+    +schema: ref
+    +quote_columns: false
+    dim_location:
+      +column_types: {location_key: integer, open_date: date, operatories: integer}
+    cdt_procedure_map:
+      +column_types: {is_new_patient_code: boolean, typical_fee: numeric}
+    location_crosswalk:
+      +column_types: {source_location: "{{ 'string' if target.type == 'bigquery' else 'text' }}", location_key: integer}
+    gl_account_map:
+      +column_types: {account_no: "{{ 'string' if target.type == 'bigquery' else 'text' }}", is_opex: boolean}
+    ukg_earning_map:
+      +column_types: {pay_multiplier: numeric, is_productive: boolean, is_overtime: boolean}
+    ukg_job_map:
+      +column_types: {is_clinical: boolean}
+    marketing_channel_map:
+      +column_types: {is_paid: boolean}
+
+models:
+  practice_pulse:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: view     # views stay current as new data lands; no refresh job needed

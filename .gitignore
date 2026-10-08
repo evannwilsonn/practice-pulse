@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+warehouse/*.duckdb
+sample_data/exports/
+dashboard/index.html
+dashboard/data.json
+live_dashboard/live.html
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/

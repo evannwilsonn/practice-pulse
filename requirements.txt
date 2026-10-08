@@ -1,0 +1,17 @@
+# core pipeline + local preview
+duckdb>=1.1
+numpy
+pandas
+requests
+sqlglot>=25
+# connectors (install what you use)
+paramiko            # SFTP report drops
+pyodbc              # Dolphin / on-prem SQL Server
+google-ads          # Google Ads API
+google-analytics-data   # GA4 Data API
+# warehouse (BigQuery) + models
+google-cloud-bigquery
+dbt-bigquery
+# local model tests against Postgres (optional)
+dbt-postgres
+psycopg[binary]

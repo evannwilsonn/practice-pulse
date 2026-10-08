@@ -1,0 +1,7 @@
+job_code,job_title,role,is_clinical
+RDH01,Registered Dental Hygienist,Hygienist,true
+DA01,Dental Assistant,Dental Assistant,true
+EFDA01,Expanded Function Dental Assistant,Dental Assistant,true
+FD01,Front Desk Coordinator,Front Office,false
+INS01,Insurance Coordinator,Front Office,false
+OM01,Office Manager,Office Manager,false

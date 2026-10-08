@@ -1,0 +1,59 @@
+account_no,account_title,category,is_opex,mart_source,notes
+4000,Patient Service Revenue,Revenue,false,pms,Reconciled against PMS payments
+4900,Refunds & Revenue Adjustments,Revenue,false,gl,Booked against revenue; not part of PMS payments
+5100,Doctor Compensation,Doctor Compensation,true,gl,Dentist / specialist pay
+5110,Associate Doctor Benefits,Doctor Compensation,true,gl,
+5200,Dental Lab Fees,Clinical Supplies & Lab,true,gl,Crowns / implants / ortho appliances
+5300,Dental Supplies,Clinical Supplies & Lab,true,inventory,Reconciled against inventory usage
+5310,Small Instruments & Burs,Clinical Supplies & Lab,true,gl,
+6000,Clinical Staff Wages,Staff Payroll & Benefits,true,ukg,Regular + overtime; reconciled against UKG
+6010,Front Office & Admin Wages,Staff Payroll & Benefits,true,ukg,Regular + overtime; reconciled against UKG
+6030,PTO & Holiday Pay,Staff Payroll & Benefits,true,ukg,Reconciled against UKG PTO/HOL hours
+6040,Bonuses & Incentives,Staff Payroll & Benefits,true,gl,Quarterly production bonuses + year-end
+6050,Payroll Taxes,Staff Payroll & Benefits,true,gl,Employer FICA / FUTA / SUTA
+6060,Health & Dental Benefits,Staff Payroll & Benefits,true,gl,
+6070,401(k) Match,Staff Payroll & Benefits,true,gl,
+6080,Workers' Compensation Insurance,Staff Payroll & Benefits,true,gl,
+6100,Rent & CAM,Occupancy,true,gl,
+6110,Property Taxes,Occupancy,true,gl,
+6150,Electricity,Utilities,true,gl,Seasonal: summer A/C load
+6155,Water & Sewer,Utilities,true,gl,
+6160,Trash Removal,Utilities,true,gl,
+6165,Internet & Data,Utilities,true,gl,
+6170,Phone & VoIP,Utilities,true,gl,
+6175,Cable / TV & Patient Wi-Fi,Utilities,true,gl,
+6200,Building Repairs & Maintenance,Facilities & Maintenance,true,gl,Plumbing / electrical / doors / buildout fixes
+6210,HVAC / A/C Service & Repair,Facilities & Maintenance,true,gl,
+6220,Janitorial Services,Facilities & Maintenance,true,gl,
+6225,Carpet & Floor Cleaning,Facilities & Maintenance,true,gl,
+6230,Pest Control,Facilities & Maintenance,true,gl,
+6240,Fire Safety (Extinguishers & Inspections),Facilities & Maintenance,true,gl,
+6250,Security & Alarm Monitoring,Facilities & Maintenance,true,gl,
+6300,Dental Equipment Repair & Maintenance,Dental Equipment,true,gl,Chairs / compressors / vacuum / sterilizers / handpieces
+6310,Imaging Equipment Service & Calibration,Dental Equipment,true,gl,X-ray / pano / CBCT / sensors
+6320,Equipment Leases,Dental Equipment,true,gl,
+6330,IT Support & Hardware Repair,Technology & Software,true,gl,
+6340,Practice Management Software,Technology & Software,true,gl,PMS subscriptions
+6345,Imaging & Clinical Software,Technology & Software,true,gl,
+6350,Business Software & Subscriptions,Technology & Software,true,gl,Office suite / payroll / accounting / patient messaging
+6380,Computers & Small Equipment,Technology & Software,true,gl,Non-capitalized purchases
+6400,Office Supplies,Office & Administrative,true,gl,
+6410,Postage & Shipping,Office & Administrative,true,gl,
+6420,Printing & Patient Forms,Office & Administrative,true,gl,
+6440,Travel & Mileage,Office & Administrative,true,gl,
+6600,Advertising & Marketing,Marketing,true,marketing,Reconciled against ad platforms + SEO
+6630,Patient Referral & Appreciation,Marketing,true,gl,
+6700,Uniforms & Scrubs,Staff Development & HR,true,gl,
+6710,Continuing Education & Training,Staff Development & HR,true,gl,
+6720,Licenses Certifications & Dues,Staff Development & HR,true,gl,State licenses / DEA / professional dues
+6730,Recruiting & Hiring,Staff Development & HR,true,gl,
+6740,Employee Appreciation & Events,Staff Development & HR,true,gl,
+6800,Malpractice Insurance,Insurance & Professional Fees,true,gl,
+6810,General Liability & Property Insurance,Insurance & Professional Fees,true,gl,
+6820,Cyber Insurance,Insurance & Professional Fees,true,gl,
+6830,Accounting & Legal,Insurance & Professional Fees,true,gl,
+6850,Merchant & Credit Card Fees,Insurance & Professional Fees,true,gl,On patient card payments
+6860,Collection Agency Fees,Insurance & Professional Fees,true,gl,
+6900,Medical & Biohazard Waste Disposal,Compliance & Safety,true,gl,
+6910,OSHA & HIPAA Compliance Services,Compliance & Safety,true,gl,
+6920,Dosimetry & Waterline Testing,Compliance & Safety,true,gl,

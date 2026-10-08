@@ -1,0 +1,5 @@
+earning_code,description,pay_multiplier,is_productive,is_overtime
+REG,Regular,1.0,true,false
+OT,Overtime,1.5,true,true
+PTO,Paid Time Off,1.0,false,false
+HOL,Holiday,1.0,false,false
